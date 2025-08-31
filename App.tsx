@@ -2,44 +2,74 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import CreateCardForm from './components/CreateCardForm';
-import CardPreview from './components/CardPreview';
-import ShareView from './components/ShareView';
 import Toast from './components/Toast';
-import { CardData, Theme, ThemeColors, ToastMessage } from './types';
+import { CardData, Theme, ToastMessage } from './types';
 import { INITIAL_CARD_DATA, THEMES, CUSTOM_THEME_ID } from './constants';
 
-type View = 'Create' | 'View' | 'Share';
-
 const hexToRgb = (hex: string): string => {
+    if (!hex) return '0, 0, 0';
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '0, 0, 0';
 };
 
-const getViewFromHash = (): View => {
-  const hash = window.location.hash.toLowerCase();
-  if (hash.startsWith('#/view')) return 'View';
-  if (hash.startsWith('#/share')) return 'Share';
-  return 'Create';
-};
-
-const App: React.FC = () => {
-  const [activeView, setActiveView] = useState<View>(getViewFromHash());
-  
-  // Initialize cardData from localStorage or fall back to initial data.
-  const [cardData, setCardData] = useState<CardData>(() => {
-    try {
-      const savedData = localStorage.getItem('fancyfam-card-data');
-      return savedData ? JSON.parse(savedData) : INITIAL_CARD_DATA;
-    } catch (error) {
-      console.error("Failed to parse card data from localStorage", error);
+// Robustly load and sanitize card data from localStorage
+const loadCardData = (): CardData => {
+  try {
+    const savedDataString = localStorage.getItem('fancyfam-card-data');
+    if (!savedDataString) {
       return INITIAL_CARD_DATA;
     }
-  });
+    
+    const parsedData = JSON.parse(savedDataString) as Partial<CardData>;
 
-  const [isCardFlipped, setIsCardFlipped] = useState(false);
+    // Create a new object by merging saved data over defaults.
+    // This ensures all top-level keys from INITIAL_CARD_DATA are present.
+    const data: CardData = { ...INITIAL_CARD_DATA, ...parsedData };
+
+    // Sanitize the potentially problematic nested structures.
+    data.socialLinks = (Array.isArray(parsedData.socialLinks) ? parsedData.socialLinks : []).filter(
+        link => link && typeof link.id === 'string' && typeof link.type === 'string' && typeof link.url === 'string'
+    );
+    
+    data.funFacts = (Array.isArray(parsedData.funFacts) ? parsedData.funFacts : []).filter(
+        fact => fact && typeof fact.id === 'string' && typeof fact.question === 'string' && typeof fact.answer === 'string'
+    );
+    
+    // Deeply sanitize customColors object - THIS IS THE CRITICAL FIX.
+    if (data.themeId === CUSTOM_THEME_ID) {
+        const defaultCustomColors = { primary: '#EC4899', secondary: '#8B5CF6', accent: '#FDE047' };
+        const savedCustomColors = parsedData.customColors;
+
+        if (savedCustomColors && typeof savedCustomColors === 'object') {
+            data.customColors = {
+                primary: typeof savedCustomColors.primary === 'string' ? savedCustomColors.primary : defaultCustomColors.primary,
+                secondary: typeof savedCustomColors.secondary === 'string' ? savedCustomColors.secondary : defaultCustomColors.secondary,
+                accent: typeof savedCustomColors.accent === 'string' ? savedCustomColors.accent : defaultCustomColors.accent,
+            };
+        } else {
+            // If theme is custom but colors are missing/malformed, apply defaults.
+            data.customColors = defaultCustomColors;
+        }
+    } else {
+        // If theme is not custom, ensure customColors is not present.
+        delete data.customColors;
+    }
+    
+    return data;
+
+  } catch (error) {
+    console.error("Failed to parse card data from localStorage, using defaults.", error);
+    // Clear corrupted data to prevent crash loops on subsequent visits.
+    localStorage.removeItem('fancyfam-card-data');
+    return INITIAL_CARD_DATA;
+  }
+};
+
+
+const App: React.FC = () => {
+  const [cardData, setCardData] = useState<CardData>(loadCardData);
   const [toast, setToast] = useState<ToastMessage>(null);
 
-  // Effect to save cardData to localStorage whenever it changes.
   useEffect(() => {
     try {
       localStorage.setItem('fancyfam-card-data', JSON.stringify(cardData));
@@ -47,21 +77,6 @@ const App: React.FC = () => {
       console.error("Failed to save card data to localStorage", error);
     }
   }, [cardData]);
-
-
-  useEffect(() => {
-    const handleHashChange = () => {
-      const currentView = getViewFromHash();
-      setActiveView(currentView);
-      if (currentView !== 'View') {
-        setIsCardFlipped(false);
-      }
-    };
-    window.addEventListener('hashchange', handleHashChange);
-    return () => {
-      window.removeEventListener('hashchange', handleHashChange);
-    };
-  }, []);
 
   const activeTheme: Theme = useMemo(() => {
     if (cardData.themeId === CUSTOM_THEME_ID && cardData.customColors) {
@@ -85,48 +100,17 @@ const App: React.FC = () => {
     root.style.setProperty('--accent-color', activeTheme.colors.accent);
   }, [activeTheme]);
   
-  const handlePreview = () => {
-    window.location.href = '#/view';
-  };
-  
-  const renderView = () => {
-    switch (activeView) {
-      case 'Create':
-        return <CreateCardForm cardData={cardData} setCardData={setCardData} onPreview={handlePreview} />;
-      case 'View':
-        // The container and centering logic is now handled by the <main> element.
-        // This simplified structure prevents the rendering crash.
-        return (
-          <>
-            <div className="text-center mb-8">
-              <h2 className="text-2xl sm:text-3xl font-bold text-theme-primary mb-2">Your Card Preview</h2>
-              <p className="text-sm sm:text-base text-text-content-secondary">Click the card to see the back.</p>
-            </div>
-            <div className="w-full cursor-pointer" onClick={() => setIsCardFlipped(f => !f)}>
-              <CardPreview cardData={cardData} theme={activeTheme} isFlipped={isCardFlipped} />
-            </div>
-          </>
-        );
-      case 'Share':
-        return <ShareView cardData={cardData} activeTheme={activeTheme} setToast={setToast} />;
-      default:
-        return <CreateCardForm cardData={cardData} setCardData={setCardData} onPreview={handlePreview} />;
-    }
-  };
-
   return (
     <div className="app min-h-screen flex flex-col bg-bg-content text-text-content-primary">
       <Header />
       <Toast toast={toast} setToast={setToast} />
-      {/* 
-        Dynamically apply flexbox styles to the main content area only for the 'View' page.
-        This centers the card preview vertically and horizontally, fixing the crash caused by
-        nested flex containers with conflicting height properties.
-      */}
-      <main className={`flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 ${
-        activeView === 'View' ? 'flex flex-col items-center justify-center' : ''
-      }`}>
-        {renderView()}
+      <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <CreateCardForm 
+            cardData={cardData} 
+            setCardData={setCardData} 
+            theme={activeTheme}
+            setToast={setToast}
+        />
       </main>
       <Footer />
     </div>

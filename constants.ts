@@ -58,16 +58,16 @@ export const THEMES: Theme[] = [
 ];
 
 export const INITIAL_CARD_DATA: CardData = {
-  name: 'Alex Johnson',
+  name: 'Alexa Johnson',
   title: 'Full Stack Developer',
-  email: 'alex@example.com',
+  email: 'alexa@example.com',
   phone: '(555) 123-4567',
-  website: 'alexjohnson.dev',
-  profilePicture: `https://i.pravatar.cc/400?u=alexjohnson`,
+  website: 'alexajohnson.dev',
+  profilePicture: `https://i.pravatar.cc/400?u=alexajohnson`,
   socialLinks: [
-    { id: '1', type: SocialNetwork.LinkedIn, url: 'https://linkedin.com/in/alexjohnson' },
-    { id: '2', type: SocialNetwork.GitHub, url: 'https://github.com/alexjohnson' },
-    { id: '3', type: SocialNetwork.Twitter, url: 'https://twitter.com/alexjohnson' },
+    { id: '1', type: SocialNetwork.LinkedIn, url: 'https://linkedin.com/in/alexajohnson' },
+    { id: '2', type: SocialNetwork.GitHub, url: 'https://github.com/alexajohnson' },
+    { id: '3', type: SocialNetwork.Twitter, url: 'https://twitter.com/alexajohnson' },
   ],
   funFacts: [
     { id: '1', question: 'Secret Talent?', answer: "I can solve a Rubik's cube in under a minute!" },
