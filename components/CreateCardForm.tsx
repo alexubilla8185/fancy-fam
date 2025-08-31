@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CardData, Theme, ToastMessage } from '../types';
 import MyInfoSection from './form/MyInfoSection';
 import SocialLinksSection from './form/SocialLinksSection';
@@ -6,7 +6,7 @@ import FunFactsSection from './form/FunFactsSection';
 import ThemeSection from './form/ThemeSection';
 import CardPreview from './CardPreview';
 import ShareModal from './ShareModal';
-import { Share2 } from 'lucide-react';
+import { Share2, ArrowUp } from 'lucide-react';
 
 interface CreateCardFormProps {
   cardData: CardData;
@@ -18,6 +18,27 @@ interface CreateCardFormProps {
 const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, theme, setToast }) => {
   const [isCardFlipped, setIsCardFlipped] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const checkScrollTop = () => {
+      if (!showScrollTop && window.pageYOffset > 400) {
+        setShowScrollTop(true);
+      } else if (showScrollTop && window.pageYOffset <= 400) {
+        setShowScrollTop(false);
+      }
+    };
+
+    window.addEventListener('scroll', checkScrollTop);
+    return () => window.removeEventListener('scroll', checkScrollTop);
+  }, [showScrollTop]);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
   
   return (
     <>
@@ -35,6 +56,15 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
             >
               <CardPreview cardData={cardData} theme={theme} isFlipped={isCardFlipped} />
             </div>
+            <div className="form-actions mt-8 text-center">
+              <button 
+                type="button" 
+                onClick={() => setIsShareModalOpen(true)}
+                className="bg-theme-primary hover:opacity-90 text-white font-bold py-3 px-12 rounded-full w-full md:w-auto text-lg shadow-lg hover:shadow-xl flex items-center justify-center gap-2 mx-auto" 
+                style={{boxShadow: `0 4px 20px -5px rgba(var(--primary-color-rgb), 0.5)`}}>
+                Share Card <Share2 size={20} />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -45,16 +75,6 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
             <SocialLinksSection cardData={cardData} setCardData={setCardData} />
             <FunFactsSection cardData={cardData} setCardData={setCardData} />
             <ThemeSection cardData={cardData} setCardData={setCardData} />
-
-            <div className="form-actions mt-8 pt-8 border-t border-border-color text-center">
-              <button 
-                type="button" 
-                onClick={() => setIsShareModalOpen(true)}
-                className="bg-theme-primary hover:opacity-90 text-white font-bold py-3 px-12 rounded-full w-full md:w-auto text-lg shadow-lg hover:shadow-xl flex items-center justify-center gap-2 mx-auto" 
-                style={{boxShadow: `0 4px 20px -5px rgba(var(--primary-color-rgb), 0.5)`}}>
-                Share Card <Share2 size={20} />
-              </button>
-            </div>
           </form>
         </div>
       </div>
@@ -66,6 +86,18 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
         activeTheme={theme}
         setToast={setToast}
       />
+
+      {showScrollTop && (
+        <div className="fixed bottom-6 right-6 z-30 fade-in-item" style={{ animationDuration: '0.3s' }}>
+            <button
+                onClick={scrollToTop}
+                className="p-3 rounded-full bg-control-bg text-control-text shadow-lg hover:bg-control-hover-bg transition-all duration-300 transform hover:scale-110"
+                aria-label="Scroll to top"
+            >
+                <ArrowUp className="h-6 w-6" />
+            </button>
+        </div>
+      )}
     </>
   );
 };
