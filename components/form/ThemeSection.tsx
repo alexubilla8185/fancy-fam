@@ -45,14 +45,14 @@ const ThemeSection: React.FC<ThemeSectionProps> = ({ cardData, setCardData }) =>
         <fieldset>
             <legend className="text-2xl font-bold text-theme-primary mb-6">Card Theme</legend>
             <div className="p-6 bg-bg-card rounded-lg border border-border-color">
-                <div className="flex overflow-x-auto space-x-4 pb-4 md:grid md:grid-cols-3 lg:grid-cols-6 md:space-x-0 md:gap-4 horizontal-scrollbar">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                     {THEMES.map((theme) => (
-                        <button key={theme.id} type="button" onClick={() => handleThemeChange(theme.id)} className={`flex-shrink-0 w-36 md:w-full p-4 rounded-lg border-2 text-center transition-all duration-200 ${cardData.themeId === theme.id ? 'border-theme-primary shadow-lg scale-105' : 'border-border-color hover:border-gray-400 dark:hover:border-gray-500'}`}>
+                        <button key={theme.id} type="button" onClick={() => handleThemeChange(theme.id)} className={`w-full p-4 rounded-lg border-2 text-center transition-all duration-200 ${cardData.themeId === theme.id ? 'border-theme-primary shadow-lg scale-105' : 'border-border-color hover:border-gray-400 dark:hover:border-gray-500'}`}>
                             <div className="flex justify-center gap-2 mb-3"><div className="w-6 h-6 rounded-full shadow-inner" style={{ backgroundColor: theme.colors.primary }}></div><div className="w-6 h-6 rounded-full shadow-inner" style={{ backgroundColor: theme.colors.secondary }}></div><div className="w-6 h-6 rounded-full shadow-inner" style={{ backgroundColor: theme.colors.accent }}></div></div>
                             <span className="text-sm font-semibold text-text-content-secondary">{theme.name}</span>
                         </button>
                     ))}
-                    <button type="button" onClick={() => handleThemeChange(CUSTOM_THEME_ID)} className={`flex-shrink-0 w-36 md:w-full p-4 rounded-lg border-2 text-center transition-all duration-200 ${cardData.themeId === CUSTOM_THEME_ID ? 'border-theme-primary shadow-lg scale-105' : 'border-border-color hover:border-gray-400 dark:hover:border-gray-500'}`}>
+                    <button type="button" onClick={() => handleThemeChange(CUSTOM_THEME_ID)} className={`w-full p-4 rounded-lg border-2 text-center transition-all duration-200 ${cardData.themeId === CUSTOM_THEME_ID ? 'border-theme-primary shadow-lg scale-105' : 'border-border-color hover:border-gray-400 dark:hover:border-gray-500'}`}>
                         <div className="flex justify-center items-center gap-2 mb-3"><div className="w-14 h-7 rounded-full bg-gradient-to-r from-rose-400 via-fuchsia-500 to-indigo-500"></div></div>
                         <span className="text-sm font-semibold text-text-content-secondary">Custom</span>
                     </button>
