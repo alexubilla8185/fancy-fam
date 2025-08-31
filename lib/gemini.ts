@@ -10,7 +10,7 @@ export const generateFunFactsFromTitle = async (title: string) => {
     try {
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
-            contents: `Generate two short, witty, and professional 'fun facts' for a digital business card for a "${title}". Each fact should have a question and a short answer.`,
+            contents: `Generate two short, witty, and professional 'fun facts' for a digital card for a "${title}". Each fact should have a question and a short answer.`,
             config: {
                 responseMimeType: "application/json",
                 responseSchema: {

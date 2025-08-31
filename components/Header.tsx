@@ -33,7 +33,7 @@ const Header: React.FC = () => {
           <h1 className="text-3xl font-extrabold text-gradient">
             FancyFam
           </h1>
-          <p className="text-xs text-text-header/70">Digital Business Cards</p>
+          <p className="text-xs text-text-header/70">Digital Cards</p>
         </div>
         <nav className="flex items-center space-x-2 sm:space-x-4">
           <ul className={`flex items-center space-x-1 p-1 rounded-full ${theme === 'dark' ? 'bg-black/20' : 'bg-gray-100'}`}>
