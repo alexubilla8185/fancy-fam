@@ -73,7 +73,7 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
           <form className="space-y-8 lg:space-y-12" onSubmit={(e) => e.preventDefault()}>
             <MyInfoSection cardData={cardData} setCardData={setCardData} />
             <SocialLinksSection cardData={cardData} setCardData={setCardData} />
-            <FunFactsSection cardData={cardData} setCardData={setCardData} setToast={setToast} />
+            <FunFactsSection cardData={cardData} setCardData={setCardData} />
             <ThemeSection cardData={cardData} setCardData={setCardData} />
           </form>
         </div>
