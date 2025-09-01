@@ -23,7 +23,13 @@ const ShareView: React.FC<ShareViewProps> = ({ cardData, theme }) => {
             
             <div 
               className="w-full max-w-[480px] mx-auto aspect-[5/3] cursor-pointer perspective-1000"
-              onClick={() => setIsFlipped(f => !f)}
+              onClick={(e) => {
+                // Prevent card flip when clicking on a link
+                if ((e.target as HTMLElement).closest('a')) {
+                  return;
+                }
+                setIsFlipped(f => !f);
+              }}
             >
               <CardPreview cardData={cardData} theme={theme} isFlipped={isFlipped} />
             </div>

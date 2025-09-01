@@ -24,10 +24,6 @@ const CardPreview: React.FC<CardPreviewProps> = ({ cardData, theme, isFlipped })
       setShareUrl('');
     }
   }, [cardData]);
-  
-  const handleLinkClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-  };
 
   const cardStyle: React.CSSProperties = {
     '--primary-color': theme.colors.primary,
@@ -74,9 +70,9 @@ const CardPreview: React.FC<CardPreviewProps> = ({ cardData, theme, isFlipped })
           </div>
           <div className="footer text-center text-[10px] sm:text-xs text-white/70 space-y-0.5">
             <div className="flex justify-center items-center flex-wrap gap-x-3 gap-y-1">
-              {email && <a href={`mailto:${email}`} onClick={handleLinkClick} className="font-semibold hover:text-white transition-colors">{email}</a>}
-              {phone && <a href={`tel:${phone}`} onClick={handleLinkClick} className="font-semibold hover:text-white transition-colors">{phone}</a>}
-              {website && website.trim() && <a href={formatUrl(website)} onClick={handleLinkClick} target="_blank" rel="noopener noreferrer" className="font-semibold hover:text-white transition-colors">{website}</a>}
+              {email && <a href={`mailto:${email}`} className="font-semibold hover:text-white transition-colors">{email}</a>}
+              {phone && <a href={`tel:${phone}`} className="font-semibold hover:text-white transition-colors">{phone}</a>}
+              {website && website.trim() && <a href={formatUrl(website)} target="_blank" rel="noopener noreferrer" className="font-semibold hover:text-white transition-colors">{website}</a>}
             </div>
           </div>
         </div>
@@ -92,7 +88,7 @@ const CardPreview: React.FC<CardPreviewProps> = ({ cardData, theme, isFlipped })
               <div className="flex justify-between items-start mt-2">
                 <div className="flex flex-wrap gap-3 sm:gap-4">
                   {socialLinks.filter(l => l.url && l.url.trim()).map(link => (
-                    <a key={link.id} href={formatUrl(link.url)} onClick={handleLinkClick} target="_blank" rel="noopener noreferrer" className="text-theme-secondary hover:text-theme-primary transition-colors transform hover:scale-110" aria-label={link.type}>
+                    <a key={link.id} href={formatUrl(link.url)} target="_blank" rel="noopener noreferrer" className="text-theme-secondary hover:text-theme-primary transition-colors transform hover:scale-110" aria-label={link.type}>
                       <SocialIcon type={link.type} className="w-7 h-7 sm:w-8 sm:h-8" />
                     </a>
                   ))}

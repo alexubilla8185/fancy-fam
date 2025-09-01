@@ -86,16 +86,22 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
               </div>
             <div 
               className="w-full max-w-[420px] mx-auto aspect-[5/3] cursor-pointer perspective-1000"
-              onClick={() => setIsCardFlipped(f => !f)}
+              onClick={(e) => {
+                // Prevent card flip when clicking on a link
+                if ((e.target as HTMLElement).closest('a')) {
+                  return;
+                }
+                setIsCardFlipped(f => !f);
+              }}
             >
               <CardPreview cardData={cardData} theme={theme} isFlipped={isCardFlipped} />
             </div>
             <div className="form-actions mt-8 text-center">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={handleShare}
-                className="bg-theme-primary hover:opacity-90 text-white font-bold py-3 px-12 rounded-full w-full md:w-auto text-lg shadow-lg hover:shadow-xl flex items-center justify-center gap-2 mx-auto" 
-                style={{boxShadow: `0 4px 20px -5px rgba(var(--primary-color-rgb), 0.5)`}}>
+                className="bg-[linear-gradient(to_right,#EC4899,#8B5CF6)] hover:brightness-110 transition-all duration-300 text-white font-bold py-3 px-12 rounded-full w-full md:w-auto text-lg flex items-center justify-center gap-2 mx-auto shadow-lg hover:shadow-xl dark:shadow-[0_8px_25px_rgba(236,72,153,0.4)]"
+              >
                 Share Card <Share2 size={20} />
               </button>
             </div>
