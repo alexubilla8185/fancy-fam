@@ -24,8 +24,8 @@ const Header: React.FC = () => {
           aria-label="Toggle theme"
         >
           <span className="relative h-5 w-5 block">
-            <Sun className={`absolute inset-0 transform transition-all duration-500 ${theme === 'dark' ? 'rotate-90 scale-0 opacity-0' : 'rotate-0 scale-100 opacity-100'}`} />
-            <Moon className={`absolute inset-0 transform transition-all duration-500 ${theme === 'light' ? '-rotate-90 scale-0 opacity-0' : 'rotate-0 scale-100 opacity-100'}`} />
+            <Sun className={`absolute inset-0 transform transition-all duration-500 ${theme === 'dark' ? 'rotate-0 scale-100 opacity-100' : 'rotate-90 scale-0 opacity-0'}`} />
+            <Moon className={`absolute inset-0 transform transition-all duration-500 ${theme === 'light' ? 'rotate-0 scale-100 opacity-100' : '-rotate-90 scale-0 opacity-0'}`} />
           </span>
         </button>
       </div>
