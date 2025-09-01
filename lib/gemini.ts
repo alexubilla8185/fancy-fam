@@ -1,4 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
+import { CardData } from "../types";
 
 if (!process.env.API_KEY) {
     throw new Error("API_KEY environment variable not set");
@@ -6,11 +7,21 @@ if (!process.env.API_KEY) {
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-export const generateFunFactsFromTitle = async (title: string) => {
+export const generateFunFactsFromCardData = async (cardData: CardData) => {
     try {
+        const { name, title, website } = cardData;
+
+        const prompt = `
+            Generate two short, witty, and professional 'fun facts' for a digital business card.
+            The person's name is ${name} and their title is "${title}".
+            Their website is ${website}, which might give you more context about their work.
+            Each fact should have a question and a short, engaging answer.
+            Make them sound human and interesting.
+        `;
+
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
-            contents: `Generate two short, witty, and professional 'fun facts' for a digital card for a "${title}". Each fact should have a question and a short answer.`,
+            contents: prompt,
             config: {
                 responseMimeType: "application/json",
                 responseSchema: {
@@ -27,7 +38,13 @@ export const generateFunFactsFromTitle = async (title: string) => {
             },
         });
 
-        return JSON.parse(response.text);
+        const result = JSON.parse(response.text);
+        // Basic validation to ensure we get the expected format
+        if (Array.isArray(result) && result.length > 0 && result[0].question && result[0].answer) {
+            return result;
+        }
+        throw new Error("Invalid response format from AI.");
+
     } catch (error) {
         console.error("Error generating fun facts from Gemini:", error);
         throw new Error("Failed to generate fun facts. Please try again.");

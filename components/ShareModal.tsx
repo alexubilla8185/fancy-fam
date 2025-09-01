@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { CardData, Theme, ToastMessage } from '../types';
 import { downloadVCard } from '../utils/vcard';
@@ -16,9 +16,12 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, cardData, acti
   const [pageUrl, setPageUrl] = useState('');
   const [isCopied, setIsCopied] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<Element | null>(null);
 
   useEffect(() => {
     if (isOpen) {
+      triggerRef.current = document.activeElement;
       setShowModal(true);
       try {
         const dataString = JSON.stringify(cardData);
@@ -31,21 +34,52 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, cardData, acti
         setPageUrl(window.location.origin + window.location.pathname);
       }
     } else {
-      const timer = setTimeout(() => setShowModal(false), 300);
+      const timer = setTimeout(() => {
+        setShowModal(false);
+        if (triggerRef.current && triggerRef.current instanceof HTMLElement) {
+          triggerRef.current.focus();
+        }
+      }, 300);
       return () => clearTimeout(timer);
     }
   }, [isOpen, cardData, setToast]);
   
   useEffect(() => {
-    // Handle Escape key press
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         onClose();
       }
+      if (event.key === 'Tab' && modalRef.current) {
+        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (event.shiftKey) { // Shift + Tab
+          if (document.activeElement === firstElement) {
+            lastElement.focus();
+            event.preventDefault();
+          }
+        } else { // Tab
+          if (document.activeElement === lastElement) {
+            firstElement.focus();
+            event.preventDefault();
+          }
+        }
+      }
     };
-    window.addEventListener('keydown', handleKeyDown);
+
+    if (isOpen && modalRef.current) {
+      // Focus the first focusable element (close button) when the modal opens
+      const closeButton = modalRef.current.querySelector<HTMLElement>('button[aria-label="Close share modal"]');
+      closeButton?.focus();
+      
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  }, [isOpen, onClose]);
 
   if (!showModal) {
     return null;
@@ -62,19 +96,16 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, cardData, acti
       url: pageUrl,
     };
 
-    // Use Web Share API if available
     if (navigator.share) {
       try {
         await navigator.share(shareData);
       } catch (err) {
-        // Silently ignore if the user cancels the share dialog
         if ((err as Error).name !== 'AbortError') {
           console.error('Error sharing:', err);
           setToast({ id: Date.now(), message: 'Could not share the card.', type: 'error' });
         }
       }
     } else {
-      // Fallback for browsers that don't support the Web Share API
       navigator.clipboard.writeText(pageUrl).then(() => {
         setToast({ id: Date.now(), message: 'Link copied to clipboard!', type: 'success' });
         setIsCopied(true);
@@ -101,6 +132,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, cardData, acti
     >
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
         <div 
+            ref={modalRef}
             className={`relative w-full max-w-md bg-bg-content rounded-2xl shadow-2xl border border-border-color p-6 m-4 transform transition-all duration-300 ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
             onClick={(e) => e.stopPropagation()}
         >

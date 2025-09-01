@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CardData } from '../../types';
 import { ImageUp } from 'lucide-react';
 
@@ -17,10 +17,32 @@ const fileToBase64 = (file: File): Promise<string> => {
 };
 
 const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData }) => {
+    const [websiteError, setWebsiteError] = useState<string>('');
+
+    const validateWebsite = (url: string): string => {
+        if (!url) {
+            return ''; // It's an optional field, so no error if empty
+        }
+        // A standard regex for URL validation. It's not perfect but covers most common cases.
+        const urlRegex = /^(?:https?:\/\/)?(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+        if (!urlRegex.test(url)) {
+            return 'Please enter a valid URL (e.g., yoursite.com).';
+        }
+        return '';
+    };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
+        // Only validate on change if an error is already showing, for better UX
+        if (name === 'website' && websiteError) {
+            setWebsiteError(validateWebsite(value));
+        }
         setCardData(prev => ({ ...prev, [name]: value }));
+    };
+    
+    const handleWebsiteBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        // Always validate when the user leaves the field
+        setWebsiteError(validateWebsite(e.target.value));
     };
 
     const handleProfilePictureChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,7 +76,19 @@ const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData }) 
                     </div>
                     <div className="md:col-span-2">
                         <label htmlFor="website" className="block text-sm font-medium mb-1 text-text-content-secondary">Website</label>
-                        <input id="website" name="website" type="text" placeholder="yourwebsite.com" value={cardData.website} onChange={handleInputChange} className="form-input w-full" />
+                        <input 
+                            id="website" 
+                            name="website" 
+                            type="text" 
+                            placeholder="yourwebsite.com" 
+                            value={cardData.website} 
+                            onChange={handleInputChange} 
+                            onBlur={handleWebsiteBlur}
+                            className={`form-input w-full ${websiteError ? 'border-red-500 focus:border-red-500 focus:shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`}
+                            aria-invalid={!!websiteError}
+                            aria-describedby="website-error"
+                        />
+                        {websiteError && <p id="website-error" className="text-sm text-red-500 mt-1">{websiteError}</p>}
                     </div>
                     <div className="md:col-span-2">
                         <label className="block text-sm font-medium mb-1 text-text-content-secondary">Profile Picture</label>
