@@ -118,10 +118,8 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, cardData, acti
                     <div className="p-2 sm:p-3 rounded-lg inline-block shadow-inner bg-white">
                         <div className="w-32 h-32 sm:w-40 sm:h-40 mx-auto">
                             <QRCodeSVG 
-                                value={pageUrl} 
-                                // FIX: Removed size="100%" as it's an invalid string value. The prop expects a number.
-                                // The component will default to a size of 128 which fits the container.
-                                viewBox={`0 0 256 256`}
+                                value={pageUrl}
+                                className="w-full h-full"
                                 bgColor={"#ffffff"}
                                 fgColor={activeTheme.colors.primary}
                                 level="Q"
