@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { CardData, Theme } from '../types';
 import { SocialIcon } from './icons/SocialIcons';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface CardPreviewProps {
   cardData: CardData;
@@ -10,6 +11,19 @@ interface CardPreviewProps {
 
 const CardPreview: React.FC<CardPreviewProps> = ({ cardData, theme, isFlipped }) => {
   const { name, title, email, phone, website, profilePicture, socialLinks, funFacts } = cardData;
+  const [shareUrl, setShareUrl] = useState('');
+
+  useEffect(() => {
+    try {
+      const dataString = JSON.stringify(cardData);
+      const encodedData = btoa(dataString);
+      const url = `${window.location.origin}${window.location.pathname}#${encodedData}`;
+      setShareUrl(url);
+    } catch (e) {
+      console.error('Failed to generate share URL for QR code', e);
+      setShareUrl('');
+    }
+  }, [cardData]);
 
   const cardStyle: React.CSSProperties = {
     '--primary-color': theme.colors.primary,
@@ -64,24 +78,40 @@ const CardPreview: React.FC<CardPreviewProps> = ({ cardData, theme, isFlipped })
 
       {/* Card Back */}
       <div className="absolute inset-0 w-full h-full backface-hidden rounded-xl overflow-hidden bg-bg-card shadow-2xl border border-border-color/50 [transform:rotateY(180deg)]">
-        <div className="h-full overflow-y-auto p-4 sm:p-5 text-text-content-primary card-scrollbar">
-          {socialLinks.filter(l => l.url).length > 0 && (
-            <div className="mb-4 sm:mb-5">
+        <div className="h-full flex flex-col p-4 sm:p-5 text-text-content-primary">
+          {/* Connect Section */}
+          {(socialLinks.filter(l => l.url).length > 0 || shareUrl) && (
+            <div className="flex-shrink-0">
               <h3 className="text-base sm:text-lg font-bold text-theme-primary border-b-2 border-theme-primary mb-2 sm:mb-3 pb-1 inline-block">Connect</h3>
-              <div className="flex flex-wrap gap-3 sm:gap-4 mt-2">
-                {socialLinks.filter(l => l.url).map(link => (
-                  <a key={link.id} href={formatUrl(link.url)} target="_blank" rel="noopener noreferrer" className="text-theme-secondary hover:text-theme-primary transition-colors transform hover:scale-110" aria-label={link.type}>
-                    <SocialIcon type={link.type} className="w-7 h-7 sm:w-8 sm:h-8" />
-                  </a>
-                ))}
+              <div className="flex justify-between items-center mt-2">
+                <div className="flex flex-wrap gap-3 sm:gap-4">
+                  {socialLinks.filter(l => l.url).map(link => (
+                    <a key={link.id} href={formatUrl(link.url)} target="_blank" rel="noopener noreferrer" className="text-theme-secondary hover:text-theme-primary transition-colors transform hover:scale-110" aria-label={link.type}>
+                      <SocialIcon type={link.type} className="w-7 h-7 sm:w-8 sm:h-8" />
+                    </a>
+                  ))}
+                </div>
+                {shareUrl && (
+                    <div className="p-1 sm:p-1.5 rounded-md bg-white shadow-inner">
+                         <QRCodeSVG 
+                            value={shareUrl}
+                            className="w-16 h-16 sm:w-20 sm:h-20"
+                            bgColor={"#ffffff"}
+                            fgColor={theme.colors.primary}
+                            level="Q"
+                            includeMargin={false}
+                        />
+                    </div>
+                )}
               </div>
             </div>
           )}
 
+          {/* Fun Facts Section */}
           {funFacts.filter(f => f.answer.trim()).length > 0 && (
-            <div>
-              <h3 className="text-base sm:text-lg font-bold text-theme-primary border-b-2 border-theme-primary mb-2 sm:mb-3 pb-1 inline-block">Fun Facts</h3>
-              <ul className="space-y-2 sm:space-y-3 text-xs sm:text-sm mt-2">
+            <div className="flex-1 min-h-0 flex flex-col mt-4 sm:mt-5">
+              <h3 className="flex-shrink-0 text-base sm:text-lg font-bold text-theme-primary border-b-2 border-theme-primary mb-2 sm:mb-3 pb-1 inline-block">Fun Facts</h3>
+              <ul className="flex-1 overflow-y-auto card-scrollbar pr-2 space-y-2 sm:space-y-3 text-xs sm:text-sm">
                 {funFacts.filter(f => f.answer.trim()).map(fact => (
                   <li key={fact.id}>
                     <p className="font-semibold text-theme-secondary">{fact.question}</p>
