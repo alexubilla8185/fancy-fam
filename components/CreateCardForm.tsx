@@ -47,7 +47,7 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
         <div className="lg:order-2 mb-12 lg:mb-0">
           <div className="lg:sticky lg:top-28">
             <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-gradient">Live Preview</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-gradient">Live Preview</h2>
                 <p className="text-sm text-text-content-secondary">Click the card to flip it.</p>
               </div>
             <div 
@@ -70,7 +70,7 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
 
         {/* Form Section - Appears second on mobile, left on desktop */}
         <div className="lg:order-1">
-          <form className="space-y-12" onSubmit={(e) => e.preventDefault()}>
+          <form className="space-y-8 lg:space-y-12" onSubmit={(e) => e.preventDefault()}>
             <MyInfoSection cardData={cardData} setCardData={setCardData} />
             <SocialLinksSection cardData={cardData} setCardData={setCardData} />
             <FunFactsSection cardData={cardData} setCardData={setCardData} />
@@ -91,7 +91,7 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
         <div className="fixed bottom-6 right-6 z-30 fade-in-item" style={{ animationDuration: '0.3s' }}>
             <button
                 onClick={scrollToTop}
-                className="p-3 rounded-full bg-control-bg text-control-text shadow-lg hover:bg-control-hover-bg transition-all duration-300 transform hover:scale-110"
+                className="p-3 rounded-full bg-[linear-gradient(45deg,#EC4899,#8B5CF6)] text-white shadow-lg transition-all duration-300 transform hover:scale-110 hover:brightness-110"
                 aria-label="Scroll to top"
             >
                 <ArrowUp className="h-6 w-6" />

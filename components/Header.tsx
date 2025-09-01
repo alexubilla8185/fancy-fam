@@ -9,10 +9,10 @@ const Header: React.FC = () => {
     <header className="sticky top-0 z-40 w-full bg-bg-header text-text-header border-b border-border-color">
       <div className="container mx-auto flex flex-row justify-between items-center p-4">
         <div className="logo-container text-left">
-          <h1 className="text-3xl font-extrabold text-gradient">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-gradient">
             FancyFam
           </h1>
-          <p className="text-xs text-text-header/70">Digital Cards</p>
+          <p className="text-xs text-text-header/70">Modern Digital Cards</p>
         </div>
         <button 
           onClick={toggleTheme} 

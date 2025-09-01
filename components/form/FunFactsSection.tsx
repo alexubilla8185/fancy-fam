@@ -31,12 +31,12 @@ const FunFactsSection: React.FC<FunFactsSectionProps> = ({ cardData, setCardData
     return (
         <fieldset>
             <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
-                <legend className="text-2xl font-bold text-theme-primary">Fun Facts</legend>
+                <legend className="text-xl sm:text-2xl font-bold text-gradient">Fun Facts</legend>
                 <button type="button" onClick={addFunFact} className="bg-control-bg text-control-text text-sm font-semibold py-2 px-3 rounded-md flex items-center gap-2 transition-colors hover:bg-control-hover-bg">
                     <Plus className="h-4 w-4" /> Add Fun Fact
                 </button>
             </div>
-            <div className="p-6 bg-bg-card rounded-lg border border-border-color space-y-4">
+            <div className="p-4 sm:p-6 bg-bg-card rounded-lg border border-border-color space-y-4">
                 {cardData.funFacts.length > 0 ? (
                     cardData.funFacts.map((fact) => (
                         <div key={fact.id} className="bg-bg-content rounded-lg border border-border-color p-4 space-y-3 fade-in-item">

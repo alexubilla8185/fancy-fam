@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { CardData, Theme, ToastMessage } from '../types';
 import { downloadVCard } from '../utils/vcard';
-import { Download, Copy, X } from 'lucide-react';
+import { Download, X, Share2 } from 'lucide-react';
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -18,15 +18,23 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, cardData, acti
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    // This effect controls the fade-in/out animation
     if (isOpen) {
       setShowModal(true);
-      setPageUrl(window.location.href.split('#')[0]); // Get clean URL without hash
+      try {
+        const dataString = JSON.stringify(cardData);
+        const encodedData = btoa(dataString);
+        const url = `${window.location.origin}${window.location.pathname}#${encodedData}`;
+        setPageUrl(url);
+      } catch (error) {
+        console.error("Failed to encode card data for sharing", error);
+        setToast({ id: Date.now(), message: 'Error creating share link.', type: 'error' });
+        setPageUrl(window.location.origin + window.location.pathname);
+      }
     } else {
-      const timer = setTimeout(() => setShowModal(false), 300); // Wait for fade-out animation
+      const timer = setTimeout(() => setShowModal(false), 300);
       return () => clearTimeout(timer);
     }
-  }, [isOpen]);
+  }, [isOpen, cardData, setToast]);
   
   useEffect(() => {
     // Handle Escape key press
@@ -47,14 +55,34 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, cardData, acti
     downloadVCard(cardData);
   };
 
-  const handleCopyUrl = () => {
-    navigator.clipboard.writeText(pageUrl).then(() => {
-      setToast({ id: Date.now(), message: 'Link copied to clipboard!', type: 'success' });
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
-    }, () => {
-      setToast({ id: Date.now(), message: 'Failed to copy link.', type: 'error' });
-    });
+  const handleShare = async () => {
+    const shareData = {
+      title: `${cardData.name}'s FancyFam Card`,
+      text: `Check out ${cardData.name}'s modern digital card!`,
+      url: pageUrl,
+    };
+
+    // Use Web Share API if available
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        // Silently ignore if the user cancels the share dialog
+        if ((err as Error).name !== 'AbortError') {
+          console.error('Error sharing:', err);
+          setToast({ id: Date.now(), message: 'Could not share the card.', type: 'error' });
+        }
+      }
+    } else {
+      // Fallback for browsers that don't support the Web Share API
+      navigator.clipboard.writeText(pageUrl).then(() => {
+        setToast({ id: Date.now(), message: 'Link copied to clipboard!', type: 'success' });
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      }, () => {
+        setToast({ id: Date.now(), message: 'Failed to copy link.', type: 'error' });
+      });
+    }
   };
   
   const ActionButton: React.FC<{ onClick: () => void; children: React.ReactNode }> = ({ onClick, children }) => (
@@ -81,21 +109,25 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, cardData, acti
             </button>
             
             <div className="text-center mb-6">
-                <h2 id="share-modal-title" className="text-2xl font-bold text-theme-primary">Share Your Card</h2>
+                <h2 id="share-modal-title" className="text-xl sm:text-2xl font-bold text-theme-primary">Share Your Card</h2>
                 <p className="text-md text-text-content-secondary">Let others connect with you instantly.</p>
             </div>
             
-            <div className="p-6 rounded-xl bg-bg-card border border-border-color">
+            <div className="p-4 sm:p-6 rounded-xl bg-bg-card border border-border-color">
                 <div className="text-center">
-                    <div className="p-3 rounded-lg inline-block shadow-inner" style={{backgroundColor: '#ffffff'}}>
-                        <QRCodeSVG 
-                            value={pageUrl} 
-                            size={160}
-                            bgColor={"#ffffff"}
-                            fgColor={activeTheme.colors.primary}
-                            level="Q"
-                            includeMargin={false}
-                        />
+                    <div className="p-2 sm:p-3 rounded-lg inline-block shadow-inner bg-white">
+                        <div className="w-32 h-32 sm:w-40 sm:h-40 mx-auto">
+                            <QRCodeSVG 
+                                value={pageUrl} 
+                                // FIX: Removed size="100%" as it's an invalid string value. The prop expects a number.
+                                // The component will default to a size of 128 which fits the container.
+                                viewBox={`0 0 256 256`}
+                                bgColor={"#ffffff"}
+                                fgColor={activeTheme.colors.primary}
+                                level="Q"
+                                includeMargin={false}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -104,9 +136,9 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, cardData, acti
                 <ActionButton onClick={handleDownloadVCard}>
                     <Download className="w-5 h-5" /> Download vCard
                 </ActionButton>
-                <ActionButton onClick={handleCopyUrl}>
-                    <Copy className="w-5 h-5" />
-                    {isCopied ? 'Copied!' : 'Copy Link'}
+                <ActionButton onClick={handleShare}>
+                    <Share2 className="w-5 h-5" />
+                    {isCopied ? 'Copied!' : 'Share Link'}
                 </ActionButton>
             </div>
         </div>

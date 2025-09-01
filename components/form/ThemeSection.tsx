@@ -28,13 +28,21 @@ const CustomColorPicker: React.FC<{
 const ThemeSection: React.FC<ThemeSectionProps> = ({ cardData, setCardData }) => {
 
     const handleThemeChange = (themeId: string) => {
-        setCardData(prev => ({ 
-            ...prev, 
-            themeId,
-            customColors: themeId === CUSTOM_THEME_ID && !prev.customColors 
-                ? { primary: '#EC4899', secondary: '#8B5CF6', accent: '#FDE047' } 
-                : prev.customColors
-        }));
+        setCardData(prev => {
+            const updatedData = { ...prev, themeId };
+
+            if (themeId === CUSTOM_THEME_ID) {
+                // If switching to custom and no custom colors exist, add defaults
+                if (!updatedData.customColors) {
+                    updatedData.customColors = { primary: '#EC4899', secondary: '#8B5CF6', accent: '#FDE047' };
+                }
+            } else {
+                // CRITICAL FIX: If switching to a standard theme, remove any existing custom colors
+                delete updatedData.customColors;
+            }
+            
+            return updatedData;
+        });
     };
 
     const handleCustomColorChange = (field: keyof Omit<ThemeColors, 'primaryRgb'>, value: string) => {
@@ -43,25 +51,31 @@ const ThemeSection: React.FC<ThemeSectionProps> = ({ cardData, setCardData }) =>
 
     return (
         <fieldset>
-            <legend className="text-2xl font-bold text-theme-primary mb-6">Card Theme</legend>
-            <div className="p-6 bg-bg-card rounded-lg border border-border-color">
+            <legend className="text-xl sm:text-2xl font-bold text-gradient mb-6">Card Theme</legend>
+            <div className="p-4 sm:p-6 bg-bg-card rounded-lg border border-border-color">
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                     {THEMES.map((theme) => (
-                        <button key={theme.id} type="button" onClick={() => handleThemeChange(theme.id)} className={`w-full p-4 rounded-lg border-2 text-center transition-all duration-200 ${cardData.themeId === theme.id ? 'border-theme-primary shadow-lg scale-105' : 'border-border-color hover:border-gray-400 dark:hover:border-gray-500'}`}>
-                            <div className="flex justify-center gap-2 mb-3"><div className="w-6 h-6 rounded-full shadow-inner" style={{ backgroundColor: theme.colors.primary }}></div><div className="w-6 h-6 rounded-full shadow-inner" style={{ backgroundColor: theme.colors.secondary }}></div><div className="w-6 h-6 rounded-full shadow-inner" style={{ backgroundColor: theme.colors.accent }}></div></div>
-                            <span className="text-sm font-semibold text-text-content-secondary">{theme.name}</span>
+                        <button key={theme.id} type="button" onClick={() => handleThemeChange(theme.id)} className={`w-full p-3 sm:p-4 rounded-lg border-2 text-center transition-all duration-200 ${cardData.themeId === theme.id ? 'border-theme-primary shadow-lg scale-105' : 'border-border-color hover:border-gray-400 dark:hover:border-gray-500'}`}>
+                            <div className="flex justify-center gap-1 sm:gap-2 mb-2 sm:mb-3">
+                                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full shadow-inner" style={{ backgroundColor: theme.colors.primary }}></div>
+                                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full shadow-inner" style={{ backgroundColor: theme.colors.secondary }}></div>
+                                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full shadow-inner" style={{ backgroundColor: theme.colors.accent }}></div>
+                            </div>
+                            <span className="text-xs sm:text-sm font-semibold text-text-content-secondary">{theme.name}</span>
                         </button>
                     ))}
-                    <button type="button" onClick={() => handleThemeChange(CUSTOM_THEME_ID)} className={`w-full p-4 rounded-lg border-2 text-center transition-all duration-200 ${cardData.themeId === CUSTOM_THEME_ID ? 'border-theme-primary shadow-lg scale-105' : 'border-border-color hover:border-gray-400 dark:hover:border-gray-500'}`}>
-                        <div className="flex justify-center items-center gap-2 mb-3"><div className="w-14 h-7 rounded-full bg-gradient-to-r from-rose-400 via-fuchsia-500 to-indigo-500"></div></div>
-                        <span className="text-sm font-semibold text-text-content-secondary">Custom</span>
+                    <button type="button" onClick={() => handleThemeChange(CUSTOM_THEME_ID)} className={`w-full p-3 sm:p-4 rounded-lg border-2 text-center transition-all duration-200 ${cardData.themeId === CUSTOM_THEME_ID ? 'border-theme-primary shadow-lg scale-105' : 'border-border-color hover:border-gray-400 dark:hover:border-gray-500'}`}>
+                        <div className="flex justify-center items-center gap-2 mb-2 sm:mb-3">
+                            <div className="w-12 h-5 sm:w-14 sm:h-7 rounded-full bg-gradient-to-r from-rose-400 via-fuchsia-500 to-indigo-500"></div>
+                        </div>
+                        <span className="text-xs sm:text-sm font-semibold text-text-content-secondary">Custom</span>
                     </button>
                 </div>
 
-                {cardData.themeId === CUSTOM_THEME_ID && (
+                {cardData.themeId === CUSTOM_THEME_ID && cardData.customColors && (
                     <div className="mt-6 border-t border-border-color pt-6">
                         <p className="font-semibold text-text-content-secondary mb-3">Customize Colors</p>
-                        <CustomColorPicker colors={cardData.customColors!} onChange={handleCustomColorChange} />
+                        <CustomColorPicker colors={cardData.customColors} onChange={handleCustomColorChange} />
                     </div>
                 )}
             </div>

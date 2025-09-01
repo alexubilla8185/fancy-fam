@@ -8,14 +8,40 @@ interface SocialLinksSectionProps {
     setCardData: React.Dispatch<React.SetStateAction<CardData>>;
 }
 
+const SOCIAL_URL_PREFIX: Record<SocialNetwork, string> = {
+  [SocialNetwork.LinkedIn]: 'https://www.linkedin.com/in/',
+  [SocialNetwork.Twitter]: 'https://twitter.com/',
+  [SocialNetwork.GitHub]: 'https://github.com/',
+  [SocialNetwork.Instagram]: 'https://www.instagram.com/',
+  [SocialNetwork.Facebook]: 'https://www.facebook.com/',
+  [SocialNetwork.Other]: '',
+};
+
 const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ cardData, setCardData }) => {
 
     const handleSocialLinkChange = (id: string, field: keyof Omit<SocialLink, 'id'>, value: string) => {
-        setCardData(prev => ({ ...prev, socialLinks: prev.socialLinks.map(link => link.id === id ? { ...link, [field]: value } : link) }));
+        setCardData(prev => {
+            const updatedLinks = prev.socialLinks.map(link => {
+                if (link.id === id) {
+                    if (field === 'type') {
+                        const newType = value as SocialNetwork;
+                        return { ...link, type: newType, url: SOCIAL_URL_PREFIX[newType] || '' };
+                    }
+                    return { ...link, [field]: value };
+                }
+                return link;
+            });
+            return { ...prev, socialLinks: updatedLinks };
+        });
     };
     
     const addSocialLink = () => {
-        setCardData(prev => ({ ...prev, socialLinks: [...prev.socialLinks, { id: Date.now().toString(), type: SocialNetwork.LinkedIn, url: '' }] }));
+        const newLink: SocialLink = {
+            id: Date.now().toString(),
+            type: SocialNetwork.LinkedIn,
+            url: SOCIAL_URL_PREFIX[SocialNetwork.LinkedIn],
+        };
+        setCardData(prev => ({ ...prev, socialLinks: [...prev.socialLinks, newLink] }));
     };
 
     const removeSocialLink = (id: string) => {
@@ -37,10 +63,10 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ cardData, setCa
     return (
         <fieldset>
             <div className="flex justify-between items-center mb-6">
-                <legend className="text-2xl font-bold text-theme-primary">Social Links</legend>
+                <legend className="text-xl sm:text-2xl font-bold text-gradient">Social Links</legend>
                 <AddButton onClick={addSocialLink} />
             </div>
-            <div className="p-6 bg-bg-card rounded-lg border border-border-color space-y-4">
+            <div className="p-4 sm:p-6 bg-bg-card rounded-lg border border-border-color space-y-4">
                 {cardData.socialLinks.length > 0 ? (
                     cardData.socialLinks.map((link) => (
                         <div key={link.id} className="bg-bg-content rounded-lg border border-border-color p-4 space-y-3 fade-in-item">

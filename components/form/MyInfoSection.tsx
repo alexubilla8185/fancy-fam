@@ -33,8 +33,8 @@ const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData }) 
 
     return (
         <fieldset>
-            <legend className="text-2xl font-bold text-theme-primary mb-6">My Info</legend>
-            <div className="p-6 bg-bg-card rounded-lg border border-border-color">
+            <legend className="text-xl sm:text-2xl font-bold text-gradient mb-6">My Info</legend>
+            <div className="p-4 sm:p-6 bg-bg-card rounded-lg border border-border-color">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                     <div>
                         <label htmlFor="name" className="block text-sm font-medium mb-1 text-text-content-secondary">Full Name</label>
