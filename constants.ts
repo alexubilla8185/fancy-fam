@@ -53,7 +53,7 @@ export const THEMES: Theme[] = [
   {
     id: 'noir',
     name: 'Noir',
-    colors: { primary: '#D4AF37', primaryRgb: '212, 175, 55', secondary: '#E5E7EB', accent: '#F9FAFB' },
+    colors: { primary: '#F9FAFB', primaryRgb: '249, 250, 251', secondary: '#EF4444', accent: '#9CA3AF' },
   },
 ];
 

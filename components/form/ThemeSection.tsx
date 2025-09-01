@@ -1,6 +1,7 @@
 import React from 'react';
 import { CardData, ThemeColors } from '../../types';
 import { THEMES, CUSTOM_THEME_ID } from '../../constants';
+import { Palette } from 'lucide-react';
 
 interface ThemeSectionProps {
     cardData: CardData;
@@ -65,8 +66,8 @@ const ThemeSection: React.FC<ThemeSectionProps> = ({ cardData, setCardData }) =>
                         </button>
                     ))}
                     <button type="button" onClick={() => handleThemeChange(CUSTOM_THEME_ID)} className={`w-full p-3 sm:p-4 rounded-lg border-2 text-center transition-all duration-200 ${cardData.themeId === CUSTOM_THEME_ID ? 'border-theme-primary shadow-lg scale-105' : 'border-border-color hover:border-gray-400 dark:hover:border-gray-500'}`}>
-                        <div className="flex justify-center items-center gap-2 mb-2 sm:mb-3">
-                            <div className="w-12 h-5 sm:w-14 sm:h-7 rounded-full bg-gradient-to-r from-rose-400 via-fuchsia-500 to-indigo-500"></div>
+                        <div className="flex justify-center items-center h-5 sm:h-6 mb-2 sm:mb-3">
+                             <Palette className={`w-full h-full transition-colors ${cardData.themeId === CUSTOM_THEME_ID ? 'text-theme-primary' : 'text-text-content-secondary'}`} />
                         </div>
                         <span className="text-xs sm:text-sm font-semibold text-text-content-secondary">Custom</span>
                     </button>
