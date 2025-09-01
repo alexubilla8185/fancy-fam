@@ -16,9 +16,24 @@ const CustomColorPicker: React.FC<{
         {Object.entries(colors).map(([key, value]) => (
             <div key={key}>
                 <label className="block text-sm font-medium text-text-content-secondary mb-1 capitalize">{key}</label>
-                <div className="flex items-center form-input p-0 overflow-hidden">
-                    <input type="color" value={value} onChange={(e) => onChange(key as any, e.target.value)} className="w-10 h-10 border-none bg-transparent cursor-pointer" />
-                    <input type="text" value={value} onChange={(e) => onChange(key as any, e.target.value)} className="w-full py-2 px-3 bg-transparent border-none focus:ring-0" />
+                <div className="flex items-center gap-2">
+                    <div className="relative w-8 h-8 rounded-md overflow-hidden border border-border-color">
+                        <div className="w-full h-full" style={{ backgroundColor: value }}></div>
+                        <input 
+                            type="color" 
+                            value={value} 
+                            onChange={(e) => onChange(key as any, e.target.value)} 
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            aria-label={`Select ${key} color`}
+                        />
+                    </div>
+                    <input 
+                        type="text" 
+                        value={value} 
+                        onChange={(e) => onChange(key as any, e.target.value)} 
+                        className="form-input w-full"
+                        aria-label={`${key} color hex code`}
+                    />
                 </div>
             </div>
         ))}

@@ -24,6 +24,10 @@ const CardPreview: React.FC<CardPreviewProps> = ({ cardData, theme, isFlipped })
       setShareUrl('');
     }
   }, [cardData]);
+  
+  const handleLinkClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
 
   const cardStyle: React.CSSProperties = {
     '--primary-color': theme.colors.primary,
@@ -34,10 +38,12 @@ const CardPreview: React.FC<CardPreviewProps> = ({ cardData, theme, isFlipped })
 
   const formatUrl = (url: string): string => {
     if (!url) return '#';
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
+    const trimmedUrl = url.trim();
+    if (!trimmedUrl) return '#';
+    if (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://')) {
+      return trimmedUrl;
     }
-    return `https://${url}`;
+    return `https://${trimmedUrl}`;
   };
 
   return (
@@ -68,9 +74,9 @@ const CardPreview: React.FC<CardPreviewProps> = ({ cardData, theme, isFlipped })
           </div>
           <div className="footer text-center text-[10px] sm:text-xs text-white/70 space-y-0.5">
             <div className="flex justify-center items-center flex-wrap gap-x-3 gap-y-1">
-              {email && <a href={`mailto:${email}`} className="font-semibold hover:text-white transition-colors">{email}</a>}
-              {phone && <a href={`tel:${phone}`} className="font-semibold hover:text-white transition-colors">{phone}</a>}
-              {website && <a href={formatUrl(website)} target="_blank" rel="noopener noreferrer" className="font-semibold hover:text-white transition-colors">{website}</a>}
+              {email && <a href={`mailto:${email}`} onClick={handleLinkClick} className="font-semibold hover:text-white transition-colors">{email}</a>}
+              {phone && <a href={`tel:${phone}`} onClick={handleLinkClick} className="font-semibold hover:text-white transition-colors">{phone}</a>}
+              {website && website.trim() && <a href={formatUrl(website)} onClick={handleLinkClick} target="_blank" rel="noopener noreferrer" className="font-semibold hover:text-white transition-colors">{website}</a>}
             </div>
           </div>
         </div>
@@ -80,22 +86,22 @@ const CardPreview: React.FC<CardPreviewProps> = ({ cardData, theme, isFlipped })
       <div className="absolute inset-0 w-full h-full backface-hidden rounded-xl overflow-hidden bg-bg-card shadow-2xl border border-border-color/50 [transform:rotateY(180deg)]">
         <div className="h-full flex flex-col p-4 sm:p-5 text-text-content-primary">
           {/* Connect Section */}
-          {(socialLinks.filter(l => l.url).length > 0 || shareUrl) && (
+          {(socialLinks.filter(l => l.url && l.url.trim()).length > 0 || shareUrl) && (
             <div className="flex-shrink-0">
               <h3 className="text-base sm:text-lg font-bold text-theme-primary border-b-2 border-theme-primary mb-2 sm:mb-3 pb-1 inline-block">Connect</h3>
-              <div className="flex justify-between items-center mt-2">
+              <div className="flex justify-between items-start mt-2">
                 <div className="flex flex-wrap gap-3 sm:gap-4">
-                  {socialLinks.filter(l => l.url).map(link => (
-                    <a key={link.id} href={formatUrl(link.url)} target="_blank" rel="noopener noreferrer" className="text-theme-secondary hover:text-theme-primary transition-colors transform hover:scale-110" aria-label={link.type}>
+                  {socialLinks.filter(l => l.url && l.url.trim()).map(link => (
+                    <a key={link.id} href={formatUrl(link.url)} onClick={handleLinkClick} target="_blank" rel="noopener noreferrer" className="text-theme-secondary hover:text-theme-primary transition-colors transform hover:scale-110" aria-label={link.type}>
                       <SocialIcon type={link.type} className="w-7 h-7 sm:w-8 sm:h-8" />
                     </a>
                   ))}
                 </div>
                 {shareUrl && (
-                    <div className="p-1 sm:p-1.5 rounded-md bg-white shadow-inner">
+                    <div className="p-1 rounded-lg bg-white shadow-md border border-black/5">
                          <QRCodeSVG 
                             value={shareUrl}
-                            className="w-16 h-16 sm:w-20 sm:h-20"
+                            className="w-12 h-12 sm:w-14 sm:h-14"
                             bgColor={"#ffffff"}
                             fgColor={theme.colors.primary}
                             level="Q"

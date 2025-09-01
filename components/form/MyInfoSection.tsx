@@ -18,6 +18,7 @@ const fileToBase64 = (file: File): Promise<string> => {
 
 const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData }) => {
     const [websiteError, setWebsiteError] = useState<string>('');
+    const [emailError, setEmailError] = useState<string>('');
 
     const validateWebsite = (url: string): string => {
         if (!url) {
@@ -31,18 +32,42 @@ const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData }) 
         return '';
     };
 
+    const validateEmail = (email: string): string => {
+        if (!email) return ''; // Optional field, so no error if empty
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return 'Please enter a valid email address.';
+        }
+        return '';
+    };
+
+    const formatPhoneNumber = (value: string): string => {
+        if (!value) return value;
+        const numericValue = value.replace(/\D/g, '').slice(0, 10);
+        if (numericValue.length > 6) {
+            return `(${numericValue.slice(0, 3)}) ${numericValue.slice(3, 6)}-${numericValue.slice(6)}`;
+        }
+        if (numericValue.length > 3) {
+            return `(${numericValue.slice(0, 3)}) ${numericValue.slice(3)}`;
+        }
+        return numericValue;
+    };
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        // Only validate on change if an error is already showing, for better UX
-        if (name === 'website' && websiteError) {
+
+        if (name === 'phone') {
+            setCardData(prev => ({ ...prev, phone: formatPhoneNumber(value) }));
+            return;
+        }
+        
+        if (name === 'website') {
             setWebsiteError(validateWebsite(value));
         }
+        if (name === 'email') {
+            setEmailError(validateEmail(value));
+        }
         setCardData(prev => ({ ...prev, [name]: value }));
-    };
-    
-    const handleWebsiteBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-        // Always validate when the user leaves the field
-        setWebsiteError(validateWebsite(e.target.value));
     };
 
     const handleProfilePictureChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,11 +93,30 @@ const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData }) 
                     </div>
                     <div>
                         <label htmlFor="email" className="block text-sm font-medium mb-1 text-text-content-secondary">Email</label>
-                        <input id="email" name="email" type="email" value={cardData.email} onChange={handleInputChange} className="form-input w-full" />
+                        <input 
+                            id="email" 
+                            name="email" 
+                            type="email" 
+                            value={cardData.email} 
+                            onChange={handleInputChange} 
+                            className={`form-input w-full ${emailError ? 'border-red-500 focus:border-red-500 focus:shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`}
+                            aria-invalid={!!emailError}
+                            aria-describedby="email-error"
+                        />
+                         {emailError && <p id="email-error" className="text-sm text-red-500 mt-1">{emailError}</p>}
                     </div>
                     <div>
                         <label htmlFor="phone" className="block text-sm font-medium mb-1 text-text-content-secondary">Phone</label>
-                        <input id="phone" name="phone" type="tel" value={cardData.phone} onChange={handleInputChange} className="form-input w-full" />
+                        <input 
+                            id="phone" 
+                            name="phone" 
+                            type="tel" 
+                            value={cardData.phone} 
+                            onChange={handleInputChange} 
+                            className="form-input w-full" 
+                            inputMode="tel"
+                            maxLength={14}
+                        />
                     </div>
                     <div className="md:col-span-2">
                         <label htmlFor="website" className="block text-sm font-medium mb-1 text-text-content-secondary">Website</label>
@@ -83,7 +127,6 @@ const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData }) 
                             placeholder="yourwebsite.com" 
                             value={cardData.website} 
                             onChange={handleInputChange} 
-                            onBlur={handleWebsiteBlur}
                             className={`form-input w-full ${websiteError ? 'border-red-500 focus:border-red-500 focus:shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`}
                             aria-invalid={!!websiteError}
                             aria-describedby="website-error"

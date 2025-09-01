@@ -5,7 +5,6 @@ import SocialLinksSection from './form/SocialLinksSection';
 import FunFactsSection from './form/FunFactsSection';
 import ThemeSection from './form/ThemeSection';
 import CardPreview from './CardPreview';
-import ShareModal from './ShareModal';
 import { Share2, ArrowUp } from 'lucide-react';
 
 interface CreateCardFormProps {
@@ -17,7 +16,6 @@ interface CreateCardFormProps {
 
 const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, theme, setToast }) => {
   const [isCardFlipped, setIsCardFlipped] = useState(false);
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
@@ -40,6 +38,42 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
     });
   };
   
+  const handleShare = async () => {
+    let pageUrl = '';
+    try {
+      const dataString = JSON.stringify(cardData);
+      const encodedData = btoa(dataString);
+      pageUrl = `${window.location.origin}${window.location.pathname}#${encodedData}`;
+    } catch (error) {
+      console.error("Failed to encode card data for sharing", error);
+      setToast({ id: Date.now(), message: 'Error creating share link.', type: 'error' });
+      return;
+    }
+
+    const shareData = {
+      title: `${cardData.name}'s FancyFam Card`,
+      text: `Check out ${cardData.name}'s modern digital card!`,
+      url: pageUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          console.error('Error sharing:', err);
+          setToast({ id: Date.now(), message: 'Could not share the card.', type: 'error' });
+        }
+      }
+    } else {
+      navigator.clipboard.writeText(pageUrl).then(() => {
+        setToast({ id: Date.now(), message: 'Link copied to clipboard!', type: 'success' });
+      }, () => {
+        setToast({ id: Date.now(), message: 'Failed to copy link.', type: 'error' });
+      });
+    }
+  };
+
   return (
     <>
       <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-12 xl:gap-16">
@@ -59,7 +93,7 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
             <div className="form-actions mt-8 text-center">
               <button 
                 type="button" 
-                onClick={() => setIsShareModalOpen(true)}
+                onClick={handleShare}
                 className="bg-theme-primary hover:opacity-90 text-white font-bold py-3 px-12 rounded-full w-full md:w-auto text-lg shadow-lg hover:shadow-xl flex items-center justify-center gap-2 mx-auto" 
                 style={{boxShadow: `0 4px 20px -5px rgba(var(--primary-color-rgb), 0.5)`}}>
                 Share Card <Share2 size={20} />
@@ -78,14 +112,6 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
           </form>
         </div>
       </div>
-
-      <ShareModal
-        isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
-        cardData={cardData}
-        activeTheme={theme}
-        setToast={setToast}
-      />
 
       {showScrollTop && (
         <div className="fixed bottom-6 right-6 z-30 fade-in-item" style={{ animationDuration: '0.3s' }}>
