@@ -45,7 +45,10 @@ const CardPreview: React.FC<CardPreviewProps> = ({ cardData, theme, isFlipped })
   return (
     <div className="relative w-full h-full card-inner" style={{ transform: isFlipped ? 'rotateY(180deg)' : 'none', ...cardStyle }}>
       {/* Card Front */}
-      <div className="absolute inset-0 w-full h-full backface-hidden rounded-xl overflow-hidden bg-bg-card shadow-2xl border border-border-color/50">
+      <div 
+        className="absolute inset-0 w-full h-full backface-hidden rounded-xl overflow-hidden bg-bg-card shadow-2xl border border-border-color/50"
+        style={{ pointerEvents: isFlipped ? 'none' : 'auto' }}
+      >
         <div 
           className="absolute inset-0 w-full h-full bg-[#111]"
           style={{
@@ -79,7 +82,10 @@ const CardPreview: React.FC<CardPreviewProps> = ({ cardData, theme, isFlipped })
       </div>
 
       {/* Card Back */}
-      <div className="absolute inset-0 w-full h-full backface-hidden rounded-xl overflow-hidden bg-bg-card shadow-2xl border border-border-color/50 [transform:rotateY(180deg)]">
+      <div 
+        className="absolute inset-0 w-full h-full backface-hidden rounded-xl overflow-hidden bg-bg-card shadow-2xl border border-border-color/50 [transform:rotateY(180deg)]"
+        style={{ pointerEvents: isFlipped ? 'auto' : 'none' }}
+      >
         <div className="h-full flex flex-col p-4 sm:p-5 text-text-content-primary">
           {/* Connect Section */}
           {(socialLinks.filter(l => l.url && l.url.trim()).length > 0 || shareUrl) && (
