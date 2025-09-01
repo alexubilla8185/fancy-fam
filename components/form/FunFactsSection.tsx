@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CardData, FunFact } from '../../types';
 import { FUN_FACT_QUESTIONS } from '../../constants';
 import { Plus, Trash2, MessageSquareQuote } from 'lucide-react';
+import ConfirmationDialog from '../ConfirmationDialog';
 
 interface FunFactsSectionProps {
     cardData: CardData;
@@ -9,6 +10,9 @@ interface FunFactsSectionProps {
 }
 
 const FunFactsSection: React.FC<FunFactsSectionProps> = ({ cardData, setCardData }) => {
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+
     const handleFunFactChange = (id: string, field: keyof Omit<FunFact, 'id'>, value: string) => {
         setCardData(prev => ({ ...prev, funFacts: prev.funFacts.map(fact => fact.id === id ? { ...fact, [field]: value } : fact) }));
     };
@@ -19,6 +23,24 @@ const FunFactsSection: React.FC<FunFactsSectionProps> = ({ cardData, setCardData
     
     const removeFunFact = (id: string) => {
         setCardData(prev => ({ ...prev, funFacts: prev.funFacts.filter(fact => fact.id !== id) }));
+    };
+
+    const requestRemoveFunFact = (id: string) => {
+        setItemToDelete(id);
+        setShowConfirm(true);
+    };
+
+    const handleConfirmDelete = () => {
+        if (itemToDelete) {
+            removeFunFact(itemToDelete);
+        }
+        setShowConfirm(false);
+        setItemToDelete(null);
+    };
+
+    const handleCancelDelete = () => {
+        setShowConfirm(false);
+        setItemToDelete(null);
     };
 
     const RemoveButton: React.FC<{onClick: () => void}> = ({onClick}) => (
@@ -48,7 +70,7 @@ const FunFactsSection: React.FC<FunFactsSectionProps> = ({ cardData, setCardData
                             </select>
                             <input type="text" placeholder="Your answer..." value={fact.answer} onChange={e => handleFunFactChange(fact.id, 'answer', e.target.value)} className="form-input p-2.5 w-full" />
                             <div className="flex justify-end pt-1">
-                                <RemoveButton onClick={() => removeFunFact(fact.id)} />
+                                <RemoveButton onClick={() => requestRemoveFunFact(fact.id)} />
                             </div>
                         </div>
                     ))
@@ -60,6 +82,13 @@ const FunFactsSection: React.FC<FunFactsSectionProps> = ({ cardData, setCardData
                     </div>
                 )}
             </div>
+            <ConfirmationDialog 
+                isOpen={showConfirm}
+                onConfirm={handleConfirmDelete}
+                onCancel={handleCancelDelete}
+                title="Confirm Deletion"
+                message="Are you sure you want to delete this fun fact?"
+            />
         </fieldset>
     );
 };

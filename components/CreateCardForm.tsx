@@ -76,7 +76,7 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
 
   return (
     <>
-      <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-12 xl:gap-16">
+      <form className="grid grid-cols-1 lg:grid-cols-2 lg:gap-12 xl:gap-16" onSubmit={(e) => e.preventDefault()}>
         {/* Preview Section - Appears first on mobile, right on desktop */}
         <div className="lg:order-2 mb-12 lg:mb-0">
           <div className="lg:sticky lg:top-28">
@@ -96,11 +96,16 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
             >
               <CardPreview cardData={cardData} theme={theme} isFlipped={isCardFlipped} />
             </div>
+
+            <div className="mt-8">
+                <ThemeSection cardData={cardData} setCardData={setCardData} />
+            </div>
+
             <div className="form-actions mt-8 text-center">
               <button
                 type="button"
                 onClick={handleShare}
-                className="bg-[linear-gradient(to_right,#EC4899,#8B5CF6)] hover:brightness-110 transition-all duration-300 text-white font-bold py-3 px-12 rounded-full w-full md:w-auto text-lg flex items-center justify-center gap-2 mx-auto shadow-lg hover:shadow-xl dark:shadow-[0_8px_25px_rgba(236,72,153,0.4)]"
+                className="bg-gradient-to-r from-[#EC4899] to-[#8B5CF6] hover:brightness-110 transition-all duration-300 text-white font-bold py-3 px-12 rounded-full w-full md:w-auto text-lg flex items-center justify-center gap-2 mx-auto shadow-lg shadow-[#EC4899]/40 hover:shadow-xl hover:shadow-[#8B5CF6]/50"
               >
                 Share Card <Share2 size={20} />
               </button>
@@ -110,14 +115,13 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
 
         {/* Form Section - Appears second on mobile, left on desktop */}
         <div className="lg:order-1">
-          <form className="space-y-8 lg:space-y-12" onSubmit={(e) => e.preventDefault()}>
+          <div className="space-y-8 lg:space-y-12">
             <MyInfoSection cardData={cardData} setCardData={setCardData} />
             <SocialLinksSection cardData={cardData} setCardData={setCardData} />
             <FunFactsSection cardData={cardData} setCardData={setCardData} />
-            <ThemeSection cardData={cardData} setCardData={setCardData} />
-          </form>
+          </div>
         </div>
-      </div>
+      </form>
 
       {showScrollTop && (
         <div className="fixed bottom-6 right-6 z-30 fade-in-item" style={{ animationDuration: '0.3s' }}>

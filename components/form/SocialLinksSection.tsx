@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CardData, SocialLink, SocialNetwork } from '../../types';
 import { SOCIAL_OPTIONS } from '../../constants';
 import { Plus, Trash2, Link2 } from 'lucide-react';
+import ConfirmationDialog from '../ConfirmationDialog';
 
 interface SocialLinksSectionProps {
     cardData: CardData;
@@ -30,6 +31,8 @@ const validateUrl = (url: string): string => {
 
 const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ cardData, setCardData }) => {
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
     const handleSocialLinkChange = (id: string, field: keyof Omit<SocialLink, 'id'>, value: string) => {
         setCardData(prev => {
@@ -71,6 +74,24 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ cardData, setCa
         });
     };
 
+    const requestRemoveSocialLink = (id: string) => {
+        setItemToDelete(id);
+        setShowConfirm(true);
+    };
+
+    const handleConfirmDelete = () => {
+        if (itemToDelete) {
+            removeSocialLink(itemToDelete);
+        }
+        setShowConfirm(false);
+        setItemToDelete(null);
+    };
+
+    const handleCancelDelete = () => {
+        setShowConfirm(false);
+        setItemToDelete(null);
+    };
+
     const AddButton: React.FC<{onClick: () => void}> = ({onClick}) => (
         <button type="button" onClick={onClick} className="bg-control-bg text-control-text text-sm font-semibold py-2 px-3 rounded-md flex items-center gap-2 transition-colors hover:bg-control-hover-bg">
             <Plus className="h-4 w-4" /> Add Link
@@ -109,7 +130,7 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ cardData, setCa
                                 />
                                 {error && <p id={`social-link-error-${link.id}`} className="text-sm text-red-500 -mt-2">{error}</p>}
                                 <div className="flex justify-end pt-1">
-                                    <RemoveButton onClick={() => removeSocialLink(link.id)} />
+                                    <RemoveButton onClick={() => requestRemoveSocialLink(link.id)} />
                                 </div>
                             </div>
                         )
@@ -122,6 +143,13 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ cardData, setCa
                     </div>
                 )}
             </div>
+            <ConfirmationDialog 
+                isOpen={showConfirm}
+                onConfirm={handleConfirmDelete}
+                onCancel={handleCancelDelete}
+                title="Confirm Deletion"
+                message="Are you sure you want to delete this social link?"
+            />
         </fieldset>
     );
 };
