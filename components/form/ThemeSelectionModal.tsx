@@ -115,7 +115,7 @@ const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({ isOpen, onClo
              <div className="mt-6 text-right">
                 <button
                     type="button"
-                    className="px-6 py-2 bg-theme-primary text-white font-semibold rounded-lg hover:brightness-110 transition-all shadow-md shadow-theme-primary/30"
+                    className="px-6 py-2 bg-gradient-to-r from-[#EC4899] to-[#8B5CF6] text-white font-semibold rounded-lg hover:brightness-110 transition-all shadow-md shadow-[#EC4899]/30"
                     onClick={onClose}
                 >
                     Done
