@@ -5,8 +5,7 @@ import SocialLinksSection from './form/SocialLinksSection';
 import FunFactsSection from './form/FunFactsSection';
 import ThemeSection from './form/ThemeSection';
 import CardPreview from './CardPreview';
-import { Share2, ArrowUp } from 'lucide-react';
-import { encodeCardData } from '../utils/compression';
+import { Share2, ArrowUp, Loader2 } from 'lucide-react';
 
 interface CreateCardFormProps {
   cardData: CardData;
@@ -18,6 +17,13 @@ interface CreateCardFormProps {
 const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, theme, setToast }) => {
   const [isCardFlipped, setIsCardFlipped] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    // When card data changes, the previously generated share URL is no longer valid.
+    setShareUrl(null);
+  }, [cardData]);
 
   useEffect(() => {
     const checkScrollTop = () => {
@@ -40,16 +46,31 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
   };
   
   const handleShare = async () => {
-    let pageUrl = '';
-    try {
-      // Use new compression and encoding utility
-      const encodedData = encodeCardData(cardData);
-      pageUrl = `${window.location.origin}${window.location.pathname}#${encodedData}`;
-    } catch (error) {
-      console.error("Failed to encode card data for sharing", error);
-      setToast({ id: Date.now(), message: 'Error creating share link.', type: 'error' });
-      return;
+    setIsSaving(true);
+    let pageUrl = shareUrl;
+
+    if (!pageUrl) {
+        try {
+            const response = await fetch('/.netlify/functions/save-card', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(cardData),
+            });
+            if (!response.ok) throw new Error('Failed to save card data.');
+            
+            const { id } = await response.json();
+            pageUrl = `${window.location.origin}${window.location.pathname}#card=${id}`;
+            setShareUrl(pageUrl);
+
+        } catch (error) {
+            console.error("Failed to save card data for sharing", error);
+            setToast({ id: Date.now(), message: 'Error creating share link.', type: 'error' });
+            setIsSaving(false);
+            return;
+        }
     }
+    
+    setIsSaving(false);
 
     const shareData = {
       title: `${cardData.name}'s FancyFam Card`,
@@ -95,7 +116,7 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
                 setIsCardFlipped(f => !f);
               }}
             >
-              <CardPreview cardData={cardData} theme={theme} isFlipped={isCardFlipped} />
+              <CardPreview cardData={cardData} theme={theme} isFlipped={isCardFlipped} shareUrl={shareUrl} />
             </div>
 
             <div className="mt-8">
@@ -106,9 +127,18 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
               <button
                 type="button"
                 onClick={handleShare}
-                className="bg-gradient-theme hover:opacity-90 transition-opacity duration-300 text-white font-bold py-3 px-12 rounded-full w-full md:w-auto text-lg flex items-center justify-center gap-2 mx-auto shadow-lg shadow-[rgba(139,92,246,0.3)] hover:shadow-xl"
+                disabled={isSaving}
+                className="bg-gradient-theme hover:opacity-90 transition-opacity duration-300 text-white font-bold py-3 px-12 rounded-full w-full md:w-auto text-lg flex items-center justify-center gap-2 mx-auto shadow-lg shadow-[rgba(139,92,246,0.3)] hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Share Card <Share2 size={20} />
+                {isSaving ? (
+                  <>
+                    <Loader2 size={20} className="animate-spin" /> Saving...
+                  </>
+                ) : (
+                  <>
+                    Share Card <Share2 size={20} />
+                  </>
+                )}
               </button>
             </div>
           </div>

@@ -6,7 +6,6 @@ import ShareView from './components/ShareView';
 import Toast from './components/Toast';
 import { CardData, Theme, ToastMessage } from './types';
 import { INITIAL_CARD_DATA, THEMES, CUSTOM_THEME_ID } from './constants';
-import { decodeCardDataWithFallback } from './utils/compression';
 
 const hexToRgb = (hex: string): string => {
   if (!hex) return '0,0,0';
@@ -35,18 +34,33 @@ const App: React.FC = () => {
   const [sharedCardData, setSharedCardData] = useState<CardData | null>(null);
 
   useEffect(() => {
-    const handleHashChange = () => {
+    const handleHashChange = async () => {
       const hash = window.location.hash.substring(1);
-      if (hash) {
-        const parsedData = decodeCardDataWithFallback(hash);
-        if (parsedData) {
-          setSharedCardData(parsedData);
-          setMode('share');
-        } else {
-          console.error("Failed to parse card data from URL hash.");
-          setMode('create'); // Fallback to create mode if parsing fails
+      if (hash.startsWith('card=')) {
+        const cardId = hash.split('=')[1];
+        if (cardId) {
+          try {
+            const response = await fetch(`/.netlify/functions/get-card?id=${cardId}`);
+            if (!response.ok) {
+              throw new Error(`Failed to fetch card: ${response.statusText}`);
+            }
+            const data = await response.json();
+            setSharedCardData(data);
+            setMode('share');
+          } catch (error) {
+            console.error("Failed to fetch card data from API.", error);
+            setToast({ id: Date.now(), message: 'Could not load the shared card.', type: 'error' });
+            window.location.hash = ''; // Clear invalid hash
+            setMode('create');
+          }
         }
+      } else if (hash) {
+          // It's an old, unsupported hash. Clear it.
+          console.warn("Old card format detected and is no longer supported. Clearing hash.");
+          window.location.hash = '';
+          setMode('create');
       } else {
+        setSharedCardData(null);
         setMode('create');
       }
     };

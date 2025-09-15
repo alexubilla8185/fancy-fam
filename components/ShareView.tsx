@@ -11,6 +11,7 @@ interface ShareViewProps {
 
 const ShareView: React.FC<ShareViewProps> = ({ cardData, theme }) => {
     const [isFlipped, setIsFlipped] = useState(false);
+    const shareUrl = window.location.href;
 
     return (
         <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 flex flex-col items-center justify-center">
@@ -31,7 +32,7 @@ const ShareView: React.FC<ShareViewProps> = ({ cardData, theme }) => {
                 setIsFlipped(f => !f);
               }}
             >
-              <CardPreview cardData={cardData} theme={theme} isFlipped={isFlipped} />
+              <CardPreview cardData={cardData} theme={theme} isFlipped={isFlipped} shareUrl={shareUrl} />
             </div>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-4 w-full max-w-xs mx-auto">
