@@ -2,6 +2,9 @@
   "name": "fancyfam-app",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "build": "echo 'Build script placeholder. Netlify will handle function bundling.'"
+  },
   "dependencies": {
     "@google/genai": "^1.16.0",
     "@netlify/blobs": "^10.0.10",
