@@ -1,6 +1,5 @@
 import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
-import { randomBytes } from "crypto";
 
 const handler: Handler = async (event: HandlerEvent, context: HandlerContext) => {
   if (event.httpMethod !== "POST") {
@@ -20,7 +19,8 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
   }
 
   try {
-    const id = randomBytes(6).toString("hex"); // 12-char ID, URL-safe
+    // Generate a sufficiently random ID without relying on the crypto module, which can cause issues in some environments.
+    const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 9);
 
     const store = getStore("cards");
     await store.setJSON(id, cardData);
