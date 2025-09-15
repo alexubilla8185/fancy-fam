@@ -63,20 +63,59 @@ const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData, se
         if (!url) {
             return ''; // It's an optional field, so no error if empty
         }
-        // A standard regex for URL validation. It's not perfect but covers most common cases.
-        const urlRegex = /^(?:https?:\/\/)?(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
-        if (!urlRegex.test(url)) {
-            return 'Please enter a valid URL (e.g., yoursite.com).';
+        const trimmedUrl = url.trim();
+        if (/\s/.test(trimmedUrl)) {
+            return 'Website URL cannot contain spaces.';
         }
+        // Prepend a protocol for robust parsing if one isn't present.
+        let urlToTest = trimmedUrl;
+        if (!urlToTest.startsWith('http://') && !urlToTest.startsWith('https://')) {
+            urlToTest = `https://${urlToTest}`;
+        }
+    
+        try {
+            const parsedUrl = new URL(urlToTest);
+            // A simple heuristic for a public website is that the hostname has a dot.
+            if (!parsedUrl.hostname.includes('.')) {
+                 return 'Please enter a valid domain name (e.g., yoursite.com).';
+            }
+        } catch (error) {
+            return 'Please enter a valid URL format.';
+        }
+        
         return '';
     };
 
     const validateEmail = (email: string): string => {
-        if (!email) return ''; // Optional field, so no error if empty
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            return 'Please enter a valid email address.';
+        if (!email) return ''; // Optional field
+        
+        const trimmedEmail = email.trim();
+        if (/\s/.test(trimmedEmail)) {
+            return 'Email address cannot contain spaces.';
         }
+        
+        const atIndex = trimmedEmail.indexOf('@');
+        if (atIndex === -1) {
+            return "Email must include an '@' symbol.";
+        }
+        
+        if (atIndex === 0) {
+            return "Please enter a part before the '@' symbol.";
+        }
+
+        const domainPart = trimmedEmail.substring(atIndex + 1);
+        if (domainPart.length === 0) {
+            return "Please enter a domain after the '@' symbol.";
+        }
+
+        if (!domainPart.includes('.')) {
+            return "The domain must contain a '.' (e.g., example.com).";
+        }
+
+        if (domainPart.startsWith('.') || domainPart.endsWith('.')) {
+            return 'The domain is improperly formatted.';
+        }
+
         return '';
     };
 
