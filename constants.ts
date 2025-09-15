@@ -3,12 +3,13 @@ import { CardData, SocialNetwork, Theme } from './types';
 export const CUSTOM_THEME_ID = 'custom';
 
 export const INITIAL_CARD_DATA: CardData = {
-  name: 'Alex Doe',
+  name: 'Maxwell Jenkinks VII',
   title: 'Software Engineer & Designer',
   email: 'alex.doe@example.com',
   phone: '(123) 456-7890',
   website: 'alexdoe.dev',
   profilePicture: null,
+  profilePictureUrl: null,
   socialLinks: [
     { id: '1', type: SocialNetwork.LinkedIn, url: 'https://www.linkedin.com/in/alexdoe' },
     { id: '2', type: SocialNetwork.Instagram, url: 'https://www.instagram.com/alexdoe' },

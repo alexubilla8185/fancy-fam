@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CardData, ToastMessage } from '../../types';
-import { ImageUp } from 'lucide-react';
+import { ImageUp, Link } from 'lucide-react';
 
 interface MyInfoSectionProps {
     cardData: CardData;
@@ -41,9 +41,7 @@ const resizeAndEncodeImage = (file: File, maxSize: number = 320): Promise<string
             ctx.drawImage(img, 0, 0, width, height);
             URL.revokeObjectURL(objectUrl);
             
-            // Use WebP for superior compression, with a quality of 75%
             const dataUrl = canvas.toDataURL('image/webp', 0.75);
-            // Strip the data URL prefix to save space
             const base64String = dataUrl.split(',')[1];
             resolve(base64String);
         };
@@ -58,16 +56,16 @@ const resizeAndEncodeImage = (file: File, maxSize: number = 320): Promise<string
 const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData, setToast }) => {
     const [websiteError, setWebsiteError] = useState<string>('');
     const [emailError, setEmailError] = useState<string>('');
+    const [imageInputMode, setImageInputMode] = useState<'upload' | 'url'>('upload');
 
     const validateWebsite = (url: string): string => {
         if (!url) {
-            return ''; // It's an optional field, so no error if empty
+            return ''; 
         }
         const trimmedUrl = url.trim();
         if (/\s/.test(trimmedUrl)) {
             return 'Website URL cannot contain spaces.';
         }
-        // Prepend a protocol for robust parsing if one isn't present.
         let urlToTest = trimmedUrl;
         if (!urlToTest.startsWith('http://') && !urlToTest.startsWith('https://')) {
             urlToTest = `https://${urlToTest}`;
@@ -75,7 +73,6 @@ const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData, se
     
         try {
             const parsedUrl = new URL(urlToTest);
-            // A simple heuristic for a public website is that the hostname has a dot.
             if (!parsedUrl.hostname.includes('.')) {
                  return 'Please enter a valid domain name (e.g., yoursite.com).';
             }
@@ -87,7 +84,7 @@ const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData, se
     };
 
     const validateEmail = (email: string): string => {
-        if (!email) return ''; // Optional field
+        if (!email) return '';
         
         const trimmedEmail = email.trim();
         if (/\s/.test(trimmedEmail)) {
@@ -160,12 +157,27 @@ const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData, se
 
             try {
                 const resizedImage = await resizeAndEncodeImage(file);
-                setCardData(prev => ({ ...prev, profilePicture: resizedImage }));
+                setCardData(prev => ({ ...prev, profilePicture: resizedImage, profilePictureUrl: null }));
             } catch (error) {
                 console.error("Failed to process image:", error);
                 setToast({ id: Date.now(), message: 'Failed to process image.', type: 'error' });
             }
         }
+    };
+    
+    const handleProfileUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const url = e.target.value;
+        setCardData(prev => ({ ...prev, profilePictureUrl: url, profilePicture: null }));
+    };
+
+    const getImageUrl = () => {
+        if (cardData.profilePictureUrl) {
+            return cardData.profilePictureUrl;
+        }
+        if (cardData.profilePicture) {
+            return `data:image/webp;base64,${cardData.profilePicture}`;
+        }
+        return `https://i.pravatar.cc/400?u=${encodeURIComponent(cardData.name)}`;
     };
 
     return (
@@ -208,7 +220,7 @@ const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData, se
                             maxLength={14}
                         />
                     </div>
-                    <div>
+                    <div className="md:col-span-2">
                         <label htmlFor="website" className="block text-sm font-medium mb-1 text-text-content-secondary">Website</label>
                         <input 
                             id="website" 
@@ -223,22 +235,54 @@ const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData, se
                         />
                         {websiteError && <p id="website-error" className="text-sm text-red-500 mt-1">{websiteError}</p>}
                     </div>
-                    <div>
+                    <div className="md:col-span-2">
                         <label className="block text-sm font-medium mb-1 text-text-content-secondary">Profile Picture</label>
                         <div className="flex items-center gap-4">
                             <img 
-                                src={cardData.profilePicture ? `data:image/webp;base64,${cardData.profilePicture}` : `https://i.pravatar.cc/400?u=${cardData.name}`} 
+                                src={getImageUrl()} 
                                 alt="Profile Preview" 
                                 className="w-16 h-16 rounded-full object-cover bg-gray-200"
                                 onError={(e) => { e.currentTarget.src = `https://i.pravatar.cc/400?u=fallback`; }}
                             />
-                            <label htmlFor="profilePicture" className="cursor-pointer flex-grow text-center px-4 py-2 bg-bg-content border-2 border-dashed border-border-color rounded-lg hover:border-theme-primary transition-colors">
-                                <div className="flex items-center justify-center gap-2 text-text-content-secondary">
-                                    <ImageUp className="w-5 h-5" />
-                                    <span className="font-semibold text-sm">Upload Image</span>
+                            <div className="flex-grow">
+                                <div className="grid grid-cols-2 gap-1 bg-control-bg p-1 rounded-lg mb-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setImageInputMode('upload')}
+                                        className={`px-2 py-1 text-sm font-semibold rounded-md transition-colors ${imageInputMode === 'upload' ? 'bg-bg-content shadow-sm text-text-content-primary' : 'text-text-content-secondary hover:bg-control-hover-bg'}`}
+                                    >
+                                        Upload
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setImageInputMode('url')}
+                                        className={`px-2 py-1 text-sm font-semibold rounded-md transition-colors ${imageInputMode === 'url' ? 'bg-bg-content shadow-sm text-text-content-primary' : 'text-text-content-secondary hover:bg-control-hover-bg'}`}
+                                    >
+                                        URL
+                                    </button>
                                 </div>
-                                <input id="profilePicture" name="profilePicture" type="file" onChange={handleProfilePictureChange} className="sr-only" accept="image/png, image/jpeg, image/gif" />
-                            </label>
+                                {imageInputMode === 'upload' ? (
+                                    <label htmlFor="profilePicture" className="cursor-pointer flex-grow text-center px-4 py-2 bg-bg-content border-2 border-dashed border-border-color rounded-lg hover:border-theme-primary transition-colors">
+                                        <div className="flex items-center justify-center gap-2 text-text-content-secondary">
+                                            <ImageUp className="w-5 h-5" />
+                                            <span className="font-semibold text-sm">Upload Image</span>
+                                        </div>
+                                        <input id="profilePicture" name="profilePicture" type="file" onChange={handleProfilePictureChange} className="sr-only" accept="image/png, image/jpeg, image/gif" />
+                                    </label>
+                                ) : (
+                                    <div className="relative">
+                                        <Link className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-content-secondary" />
+                                        <input
+                                            type="url"
+                                            placeholder="https://example.com/image.png"
+                                            value={cardData.profilePictureUrl || ''}
+                                            onChange={handleProfileUrlChange}
+                                            className="form-input w-full pl-9"
+                                            aria-label="Profile picture URL"
+                                        />
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

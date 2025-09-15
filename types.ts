@@ -39,6 +39,7 @@ export interface CardData {
   phone: string;
   website: string;
   profilePicture: string | null;
+  profilePictureUrl?: string | null;
   socialLinks: SocialLink[];
   funFacts: FunFact[];
   themeId: string;

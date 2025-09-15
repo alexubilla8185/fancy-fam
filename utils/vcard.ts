@@ -1,7 +1,7 @@
 import { CardData } from '../types';
 
 export const generateVCard = (cardData: CardData): string => {
-  const { name, title, email, phone, website, socialLinks, funFacts } = cardData;
+  const { name, title, email, phone, website, profilePicture, profilePictureUrl, socialLinks, funFacts } = cardData;
 
   const formatNote = (text: string) => {
     return text.replace(/\n/g, '\\n');
@@ -15,6 +15,12 @@ export const generateVCard = (cardData: CardData): string => {
   if (email) vCard += `EMAIL;type=INTERNET,PREF:${email}\n`;
   if (phone) vCard += `TEL;type=CELL,VOICE:${phone}\n`;
   if (website) vCard += `URL:${website}\n`;
+  
+  if (profilePictureUrl) {
+    vCard += `PHOTO;VALUE=URI:${profilePictureUrl}\n`;
+  } else if (profilePicture) {
+    vCard += `PHOTO;ENCODING=b;TYPE=WEBP:${profilePicture}\n`;
+  }
 
   socialLinks.forEach(link => {
     if(link.url) {
