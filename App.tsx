@@ -42,14 +42,28 @@ const App: React.FC = () => {
           try {
             const response = await fetch(`/.netlify/functions/get-card?id=${cardId}`);
             if (!response.ok) {
-              throw new Error(`Failed to fetch card: ${response.statusText}`);
+              if (response.status === 404) {
+                throw new Error("This card could not be found.");
+              } else if (response.status >= 500) {
+                throw new Error("Could not load card due to a server error.");
+              } else {
+                throw new Error("There was a problem loading this card.");
+              }
             }
             const data = await response.json();
             setSharedCardData(data);
             setMode('share');
           } catch (error) {
             console.error("Failed to fetch card data from API.", error);
-            setToast({ id: Date.now(), message: 'Could not load the shared card.', type: 'error' });
+            let userMessage = 'Could not load the shared card.';
+             if (error instanceof Error) {
+                if (error.message.toLowerCase().includes('failed to fetch')) {
+                    userMessage = 'Network error. Please check your connection.';
+                } else {
+                    userMessage = error.message;
+                }
+            }
+            setToast({ id: Date.now(), message: userMessage, type: 'error' });
             window.location.hash = ''; // Clear invalid hash
             setMode('create');
           }

@@ -56,7 +56,12 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(cardData),
             });
-            if (!response.ok) throw new Error('Failed to save card data.');
+            if (!response.ok) {
+                if (response.status >= 500) {
+                    throw new Error("Could not save card due to a server issue.");
+                }
+                throw new Error("An unexpected error occurred while saving.");
+            }
             
             const { id } = await response.json();
             pageUrl = `${window.location.origin}${window.location.pathname}#card=${id}`;
@@ -64,7 +69,15 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
 
         } catch (error) {
             console.error("Failed to save card data for sharing", error);
-            setToast({ id: Date.now(), message: 'Error creating share link.', type: 'error' });
+            let userMessage = 'Error creating share link.';
+            if (error instanceof Error) {
+                if (error.message.toLowerCase().includes('failed to fetch')) {
+                    userMessage = 'Network error. Please check your connection.';
+                } else {
+                    userMessage = error.message;
+                }
+            }
+            setToast({ id: Date.now(), message: userMessage, type: 'error' });
             setIsSaving(false);
             return;
         }
