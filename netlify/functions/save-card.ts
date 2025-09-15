@@ -11,8 +11,15 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
     return { statusCode: 400, body: JSON.stringify({ error: "Card data is required" }) };
   }
 
+  let cardData;
   try {
-    const cardData = JSON.parse(event.body);
+    cardData = JSON.parse(event.body);
+  } catch (error) {
+    console.error("Invalid JSON in request body:", error);
+    return { statusCode: 400, body: JSON.stringify({ error: "Invalid card data format." }) };
+  }
+
+  try {
     const id = randomBytes(6).toString("hex"); // 12-char ID, URL-safe
 
     const store = getStore("cards");
@@ -26,10 +33,10 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       },
     };
   } catch (error) {
-    console.error("Error saving card:", error);
+    console.error("Error saving card to blob store:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Could not save card data" }),
+      body: JSON.stringify({ error: "Could not save card data due to a server issue." }),
     };
   }
 };
