@@ -6,7 +6,7 @@ const Header: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-bg-header text-text-header border-b border-border-color">
+    <header className="sticky top-0 z-40 w-full backdrop-blur-lg bg-bg-header border-b border-border-color">
       <div className="container mx-auto flex flex-row justify-between items-center p-4">
         <div className="logo-container text-left">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-gradient">
@@ -16,11 +16,7 @@ const Header: React.FC = () => {
         </div>
         <button 
           onClick={toggleTheme} 
-          className={`p-2 rounded-full transition-colors ${
-            theme === 'dark'
-              ? 'text-gray-400 hover:text-white hover:bg-black/20'
-              : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
-          }`}
+          className="p-2 rounded-full transition-colors text-text-content-secondary hover:text-text-content-primary hover:bg-control-hover-bg"
           aria-label="Toggle theme"
         >
           <span className="relative h-5 w-5 block">

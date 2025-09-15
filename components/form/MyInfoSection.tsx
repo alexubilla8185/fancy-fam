@@ -118,7 +118,7 @@ const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData }) 
                             maxLength={14}
                         />
                     </div>
-                    <div className="md:col-span-2">
+                    <div>
                         <label htmlFor="website" className="block text-sm font-medium mb-1 text-text-content-secondary">Website</label>
                         <input 
                             id="website" 
@@ -133,7 +133,7 @@ const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData }) 
                         />
                         {websiteError && <p id="website-error" className="text-sm text-red-500 mt-1">{websiteError}</p>}
                     </div>
-                    <div className="md:col-span-2">
+                    <div>
                         <label className="block text-sm font-medium mb-1 text-text-content-secondary">Profile Picture</label>
                         <div className="flex items-center gap-4">
                             <img 

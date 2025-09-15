@@ -9,29 +9,38 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<ThemeMode>('light');
+// Helper function to get the initial theme, prioritizing saved preferences
+const getInitialTheme = (): ThemeMode => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    const storedPrefs = window.localStorage.getItem('theme');
+    if (storedPrefs === 'light' || storedPrefs === 'dark') {
+      return storedPrefs;
+    }
+  }
+  // Default to the dark theme as requested by the user
+  return 'dark';
+};
 
+
+export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [theme, setTheme] = useState<ThemeMode>(getInitialTheme);
+
+  // Effect to apply the theme class to the document and save to localStorage
   useEffect(() => {
     const root = window.document.documentElement;
-    // Set initial state from the class set in the inline script in index.html
-    const initialTheme = root.classList.contains('dark') ? 'dark' : 'light';
-    setTheme(initialTheme);
-  }, []);
+    
+    // Clean up old classes and apply the current theme
+    root.classList.remove(theme === 'light' ? 'dark' : 'light');
+    root.classList.add(theme);
 
-  const toggleTheme = useCallback(() => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    const root = window.document.documentElement;
-    
-    if (newTheme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-    
-    localStorage.setItem('theme', newTheme);
-    setTheme(newTheme);
+    // Save the user's preference
+    localStorage.setItem('theme', theme);
   }, [theme]);
+
+  // Memoized toggle function
+  const toggleTheme = useCallback(() => {
+    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+  }, []);
 
   const value = { theme, toggleTheme };
 

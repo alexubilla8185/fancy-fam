@@ -3,7 +3,7 @@ import { Github } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="app-footer text-text-secondary py-6 border-t border-border-color">
+    <footer className="text-text-content-secondary py-6 border-t border-border-color">
       <div className="container mx-auto px-4">
         <div className="footer-content flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="footer-info text-center md:text-left">

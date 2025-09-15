@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { CardData, SocialLink, SocialNetwork } from '../../types';
 import { SOCIAL_OPTIONS } from '../../constants';
-import { Plus, Trash2, Link2 } from 'lucide-react';
+import { SocialIcon } from '../icons/SocialIcons';
+import { Plus, Trash2, GripVertical } from 'lucide-react';
 import ConfirmationDialog from '../ConfirmationDialog';
 
 interface SocialLinksSectionProps {
@@ -9,71 +10,41 @@ interface SocialLinksSectionProps {
     setCardData: React.Dispatch<React.SetStateAction<CardData>>;
 }
 
-const SOCIAL_URL_PREFIX: Record<SocialNetwork, string> = {
-  [SocialNetwork.LinkedIn]: 'https://www.linkedin.com/in/',
-  [SocialNetwork.Twitter]: 'https://twitter.com/',
-  [SocialNetwork.GitHub]: 'https://github.com/',
-  [SocialNetwork.Instagram]: 'https://www.instagram.com/',
-  [SocialNetwork.Facebook]: 'https://www.facebook.com/',
-  [SocialNetwork.Other]: '',
-};
-
-const validateUrl = (url: string): string => {
-    if (!url || url.trim() === '') {
-        return 'URL cannot be empty.';
-    }
-    const urlRegex = /^(?:https?:\/\/)?(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
-    if (!urlRegex.test(url.trim())) {
-        return 'Please enter a valid URL format.';
-    }
-    return '';
-};
-
 const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ cardData, setCardData }) => {
-    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+    const [draggedId, setDraggedId] = useState<string | null>(null);
 
-    const handleSocialLinkChange = (id: string, field: keyof Omit<SocialLink, 'id'>, value: string) => {
-        setCardData(prev => {
-            const updatedLinks = prev.socialLinks.map(link => {
-                if (link.id === id) {
-                    if (field === 'type') {
-                        const newType = value as SocialNetwork;
-                        const newUrl = SOCIAL_URL_PREFIX[newType] || '';
-                        setErrors(prevErrors => ({ ...prevErrors, [id]: validateUrl(newUrl) }));
-                        return { ...link, type: newType, url: newUrl };
-                    }
-                    if (field === 'url') {
-                        setErrors(prevErrors => ({ ...prevErrors, [id]: validateUrl(value) }));
-                    }
-                    return { ...link, [field]: value };
-                }
-                return link;
-            });
-            return { ...prev, socialLinks: updatedLinks };
-        });
+    const handleSocialLinkChange = (id: string, value: string) => {
+        setCardData(prev => ({
+            ...prev,
+            socialLinks: prev.socialLinks.map(link =>
+                link.id === id ? { ...link, url: value } : link
+            ),
+        }));
     };
-    
-    const addSocialLink = () => {
+
+    const addSocialLink = (type: SocialNetwork) => {
         const newLink: SocialLink = {
             id: Date.now().toString(),
-            type: SocialNetwork.LinkedIn,
-            url: SOCIAL_URL_PREFIX[SocialNetwork.LinkedIn],
+            type,
+            url: '',
         };
-        setCardData(prev => ({ ...prev, socialLinks: [...prev.socialLinks, newLink] }));
-        setErrors(prevErrors => ({ ...prevErrors, [newLink.id]: '' }));
+        setCardData(prev => ({
+            ...prev,
+            socialLinks: [...prev.socialLinks, newLink],
+        }));
+        setIsAddMenuOpen(false);
     };
 
     const removeSocialLink = (id: string) => {
-        setCardData(prev => ({ ...prev, socialLinks: prev.socialLinks.filter(link => link.id !== id) }));
-        setErrors(prevErrors => {
-            const newErrors = { ...prevErrors };
-            delete newErrors[id];
-            return newErrors;
-        });
+        setCardData(prev => ({
+            ...prev,
+            socialLinks: prev.socialLinks.filter(link => link.id !== id),
+        }));
     };
-
+    
     const requestRemoveSocialLink = (id: string) => {
         setItemToDelete(id);
         setShowConfirm(true);
@@ -92,54 +63,130 @@ const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({ cardData, setCa
         setItemToDelete(null);
     };
 
-    const AddButton: React.FC<{onClick: () => void}> = ({onClick}) => (
-        <button type="button" onClick={onClick} className="bg-control-bg text-control-text text-sm font-semibold py-2 px-3 rounded-md flex items-center gap-2 transition-colors hover:bg-control-hover-bg">
-            <Plus className="h-4 w-4" /> Add Link
-        </button>
-    );
-      
-    const RemoveButton: React.FC<{onClick: () => void}> = ({onClick}) => (
-        <button type="button" onClick={onClick} className="text-text-content-secondary hover:text-red-500 transition-colors p-1" aria-label="Remove link">
-            <Trash2 className="h-5 w-5"/>
-        </button>
+    const handleDragStart = (e: React.DragEvent<HTMLDivElement>, link: SocialLink) => {
+        setDraggedId(link.id);
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', link.id);
+    };
+
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+    };
+
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>, dropOnLink: SocialLink) => {
+        e.preventDefault();
+        if (!draggedId || draggedId === dropOnLink.id) {
+            return;
+        }
+
+        const links = [...cardData.socialLinks];
+        const draggedIndex = links.findIndex(link => link.id === draggedId);
+        const targetIndex = links.findIndex(link => link.id === dropOnLink.id);
+
+        if (draggedIndex === -1 || targetIndex === -1) return;
+
+        const [removed] = links.splice(draggedIndex, 1);
+        links.splice(targetIndex, 0, removed);
+
+        setCardData(prev => ({
+            ...prev,
+            socialLinks: links,
+        }));
+        
+        setDraggedId(null);
+    };
+    
+    const handleDragEnd = () => {
+        setDraggedId(null);
+    };
+
+    const availableSocialOptions = SOCIAL_OPTIONS.filter(
+        option => !cardData.socialLinks.some(link => link.type === option.value)
     );
 
     return (
         <fieldset>
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
                 <legend className="text-xl sm:text-2xl font-bold text-gradient">Social Links</legend>
-                <AddButton onClick={addSocialLink} />
+                <div className="relative">
+                    <button 
+                        type="button" 
+                        onClick={() => setIsAddMenuOpen(prev => !prev)}
+                        className="bg-control-bg text-control-text text-sm font-semibold py-2 px-3 rounded-md flex items-center gap-2 transition-colors hover:bg-control-hover-bg"
+                        disabled={availableSocialOptions.length === 0}
+                        aria-haspopup="true"
+                        aria-expanded={isAddMenuOpen}
+                    >
+                        <Plus className="h-4 w-4" /> Add Link
+                    </button>
+                    {isAddMenuOpen && availableSocialOptions.length > 0 && (
+                        <div className="absolute right-0 mt-2 w-48 bg-bg-card rounded-md shadow-lg z-10 border border-border-color">
+                            <ul className="py-1" role="menu">
+                                {availableSocialOptions.map(option => (
+                                    <li key={option.value}>
+                                        <button 
+                                            type="button"
+                                            role="menuitem"
+                                            onClick={() => addSocialLink(option.value as SocialNetwork)}
+                                            className="w-full text-left px-4 py-2 text-sm text-text-content-primary hover:bg-control-bg flex items-center gap-3"
+                                        >
+                                            <SocialIcon type={option.value as SocialNetwork} className="w-4 h-4" />
+                                            {option.label}
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                </div>
             </div>
             <div className="p-4 sm:p-6 bg-bg-card rounded-lg border border-border-color space-y-4">
                 {cardData.socialLinks.length > 0 ? (
                     cardData.socialLinks.map((link) => {
-                        const error = errors[link.id];
+                        const isDragging = draggedId === link.id;
                         return (
-                            <div key={link.id} className="bg-bg-content rounded-lg border border-border-color p-4 space-y-3 fade-in-item">
-                                <select value={link.type} onChange={(e) => handleSocialLinkChange(link.id, 'type', e.target.value)} className="form-select p-2.5 w-full">
-                                    {SOCIAL_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                                </select>
-                                <input 
-                                    type="text" 
-                                    placeholder="https://..." 
-                                    value={link.url} 
-                                    onChange={(e) => handleSocialLinkChange(link.id, 'url', e.target.value)} 
-                                    className={`form-input p-2.5 w-full ${error ? 'border-red-500 focus:border-red-500 focus:shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''}`}
-                                    aria-invalid={!!error}
-                                    aria-describedby={error ? `social-link-error-${link.id}` : undefined}
-                                />
-                                {error && <p id={`social-link-error-${link.id}`} className="text-sm text-red-500 -mt-2">{error}</p>}
-                                <div className="flex justify-end pt-1">
-                                    <RemoveButton onClick={() => requestRemoveSocialLink(link.id)} />
+                            <div 
+                                key={link.id} 
+                                className={`flex items-center gap-2 transition-opacity ${isDragging ? 'opacity-50' : 'opacity-100'}`}
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, link)}
+                                onDragOver={handleDragOver}
+                                onDrop={(e) => handleDrop(e, link)}
+                                onDragEnd={handleDragEnd}
+                            >
+                                <span className="cursor-grab text-text-content-secondary/50 hover:text-text-content-secondary p-1" aria-label="Drag to reorder">
+                                    <GripVertical className="h-6 w-6" />
+                                </span>
+                                <div className="flex-grow">
+                                    <label htmlFor={`social-${link.id}`} className="flex items-center gap-2 text-sm font-medium mb-1.5 text-text-content-secondary">
+                                        <SocialIcon type={link.type} className="w-4 h-4" />
+                                        {link.type}
+                                    </label>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            id={`social-${link.id}`}
+                                            type="text"
+                                            placeholder={`https://www.${link.type.toLowerCase()}.com/...`}
+                                            value={link.url}
+                                            onChange={(e) => handleSocialLinkChange(link.id, e.target.value)}
+                                            className="form-input p-2.5 w-full"
+                                        />
+                                        <button 
+                                            type="button" 
+                                            onClick={() => requestRemoveSocialLink(link.id)} 
+                                            className="text-text-content-secondary hover:text-red-500 transition-colors p-2 flex-shrink-0" 
+                                            aria-label={`Remove ${link.type} link`}
+                                        >
+                                            <Trash2 className="h-5 w-5"/>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         )
                     })
                 ) : (
                     <div className="text-center py-8 text-text-content-secondary">
-                        <Link2 className="mx-auto w-10 h-10 mb-2" />
-                        <h3 className="font-semibold">No social links yet.</h3>
-                        <p className="text-sm">Click "Add Link" to get started.</p>
+                        <p>No social links added.</p>
                     </div>
                 )}
             </div>

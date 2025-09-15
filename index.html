@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="">
+<html lang="en">
   <head>
     <script type="importmap">
 {
@@ -16,160 +16,158 @@
 }
 </script>
     <meta charset="UTF-8" />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23EC4899'/%3E%3Cstop offset='100%25' stop-color='%238B5CF6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='%231c1c1e'/%3E%3Ctext x='50%25' y='50%25' font-family='Inter, sans-serif' font-weight='800' font-size='50' dominant-baseline='central' text-anchor='middle' fill='url(%23grad)'%3EFF%3C/text%3E%3C/svg%3E">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📇%3C/text%3E%3C/svg%3E" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <!-- SEO, Social Media & Mobile Optimization -->
     <title>FancyFam | Modern Digital Cards</title>
-    <meta name="description" content="Create, view, and share your personalized digital card with a fancy, futuristic theme." />
-    <meta name="keywords" content="digital card, vcard, online contact card, personal branding, qr code contact, futuristic card" />
-    <meta name="theme-color" content="#EC4899">
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://fancyfam-card-creator.vercel.app/">
-    <meta property="og:title" content="FancyFam | Modern Digital Cards">
-    <meta property="og:description" content="Create, view, and share your personalized digital card with a fancy, futuristic theme.">
-    <meta property="og:image" content="https://images.unsplash.com/photo-1598970429445-5c5183de12e2?q=80&w=1200&h=630&auto=format&fit=crop">
-    <meta property="og:site_name" content="FancyFam">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://fancyfam-card-creator.vercel.app/">
-    <meta property="twitter:title" content="FancyFam | Modern Digital Cards">
-    <meta property="twitter:description" content="Create, view, and share your personalized digital card with a fancy, futuristic theme.">
-    <meta property="twitter:image" content="https://images.unsplash.com/photo-1598970429445-5c5183de12e2?q=80&w=1200&h=630&auto=format&fit=crop">
-    
-    <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      // Configure TailwindCSS
       tailwind.config = {
-        darkMode: 'class',
         theme: {
           extend: {
             colors: {
-              'theme-primary': 'var(--primary-color)',
-              'theme-secondary': 'var(--secondary-color)',
-              'theme-accent': 'var(--accent-color)',
-              'bg-header': 'var(--bg-header)',
+              'theme-primary': 'var(--theme-primary)',
+              'theme-secondary': 'var(--theme-secondary)',
+              'bg-primary': 'var(--bg-primary)',
               'bg-content': 'var(--bg-content)',
               'bg-card': 'var(--bg-card)',
-              'text-header': 'var(--text-header)',
+              'bg-header': 'var(--bg-header)',
+              'text-primary': 'var(--text-primary)',
               'text-content-primary': 'var(--text-content-primary)',
               'text-content-secondary': 'var(--text-content-secondary)',
-              'text-secondary': 'var(--text-secondary)',
+              'text-header': 'var(--text-header)',
               'border-color': 'var(--border-color)',
               'control-bg': 'var(--control-bg)',
-              'control-text': 'var(--control-text)',
               'control-hover-bg': 'var(--control-hover-bg)',
-            },
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-            },
+              'control-text': 'var(--control-text)',
+            }
           }
         }
       }
     </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <script>
-      // Set theme on initial load to prevent FOUC (Flash of Unstyled Content)
-      (function() {
-        function getInitialTheme() {
-          try {
-            const persistedTheme = window.localStorage.getItem('theme');
-            if (persistedTheme) return persistedTheme;
-            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            return systemPrefersDark ? 'dark' : 'light';
-          } catch (e) {
-            return 'light'; // Default to light if localStorage is not available
-          }
-        }
-        const theme = getInitialTheme();
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
-        }
-      })();
-    </script>
-
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      /* Light Theme */
+      /* Base definitions */
       :root {
-        --font-sans: 'Inter', sans-serif;
-        
-        --bg-header: #ffffff;
-        --bg-content: #f1f5f9; /* Slate 100 */
-        --bg-card: #ffffff;
-        --text-header: #020617; /* Slate 950 */
-        --text-content-primary: #1e293b; /* Slate 800 */
-        --text-content-secondary: #64748b; /* Slate 500 */
-        --text-secondary: #475569; /* Slate 600 */
-        --border-color: #e2e8f0; /* Slate 200 */
+        /* Light Theme Values */
+        --theme-primary-light: #8B5CF6;
+        --theme-secondary-light: #EC4899;
+        --bg-primary-light: #F9FAFB;
+        --bg-content-light: #FFFFFF;
+        --bg-card-light: #FFFFFF;
+        --bg-header-light: rgba(249, 250, 251, 0.8);
+        --text-primary-light: #111827;
+        --text-content-primary-light: #1F2937;
+        --text-content-secondary-light: #6B7280;
+        --text-header-light: #111827;
+        --border-color-light: #E5E7EB;
+        --control-bg-light: #F3F4F6;
+        --control-hover-bg-light: #E5E7EB;
+        --control-text-light: #374151;
+        --form-input-bg-light: #FFFFFF;
+        --form-input-border-light: #D1D5DB;
+        --form-input-focus-border-light: #8B5CF6;
+        --form-input-focus-shadow-light: 0 0 0 2px rgba(139, 92, 246, 0.2);
 
-        --control-bg: #e2e8f0; /* Slate 200 */
-        --control-text: #334155; /* Slate 700 */
-        --control-hover-bg: #cbd5e1; /* Slate 300 */
+        /* Dark Theme Values */
+        --theme-primary-dark: #8B5CF6; /* Vibrant Purple */
+        --theme-secondary-dark: #EC4899; /* Vibrant Pink */
+        --bg-primary-dark: #000000; /* Pure Black */
+        --bg-content-dark: #1A1A1A; /* Dark Charcoal for content cards */
+        --bg-card-dark: #1A1A1A;
+        --bg-header-dark: rgba(0, 0, 0, 0.75);
+        --text-primary-dark: #FFFFFF;
+        --text-content-primary-dark: #E5E7EB;
+        --text-content-secondary-dark: #9E9E9E; /* Lighter gray for labels */
+        --text-header-dark: #F9FAFB;
+        --border-color-dark: #2D2D2D;
+        --control-bg-dark: #222222;
+        --control-hover-bg-dark: #333333;
+        --control-text-dark: #F9FAFB;
+        --form-input-bg-dark: #0D0D0D; /* Near-black for inputs */
+        --form-input-border-dark: #333333; /* Gray border for inputs */
+        --form-input-focus-border-dark: #8B5CF6;
+        --form-input-focus-shadow-dark: 0 0 0 2px rgba(139, 92, 246, 0.2);
+
+        /* Default to light theme variables */
+        --theme-primary: var(--theme-primary-light);
+        --theme-secondary: var(--theme-secondary-light);
+        --bg-primary: var(--bg-primary-light);
+        --bg-content: var(--bg-content-light);
+        --bg-card: var(--bg-card-light);
+        --bg-header: var(--bg-header-light);
+        --text-primary: var(--text-primary-light);
+        --text-content-primary: var(--text-content-primary-light);
+        --text-content-secondary: var(--text-content-secondary-light);
+        --text-header: var(--text-header-light);
+        --border-color: var(--border-color-light);
+        --control-bg: var(--control-bg-light);
+        --control-hover-bg: var(--control-hover-bg-light);
+        --control-text: var(--control-text-light);
+        --form-input-bg: var(--form-input-bg-light);
+        --form-input-border: var(--form-input-border-light);
+        --form-input-focus-border: var(--form-input-focus-border-light);
+        --form-input-focus-shadow: var(--form-input-focus-shadow-light);
       }
 
-      /* Dark Theme */
       .dark {
-        --bg-header: #111111; /* Very Dark Gray */
-        --bg-content: #000000; /* Solid Black */
-        --bg-card: #1c1c1e; /* Dark Gray (Card) */
-        --text-header: #f9fafb; /* Gray 50 */
-        --text-content-primary: #d1d5db; /* Gray 300 */
-        --text-content-secondary: #9ca3af; /* Gray 400 */
-        --text-secondary: #9ca3af; /* Gray 400 */
-        --border-color: #2d2d2f; /* Lighter Gray (Border) */
-        --control-bg: #2d2d2f; /* Lighter Gray */
-        --control-text: #f3f4f6; /* Gray 100 */
-        --control-hover-bg: #444446; /* Hover Gray */
+        /* Dark Theme overrides */
+        --theme-primary: var(--theme-primary-dark);
+        --theme-secondary: var(--theme-secondary-dark);
+        --bg-primary: var(--bg-primary-dark);
+        --bg-content: var(--bg-content-dark);
+        --bg-card: var(--bg-card-dark);
+        --bg-header: var(--bg-header-dark);
+        --text-primary: var(--text-primary-dark);
+        --text-content-primary: var(--text-content-primary-dark);
+        --text-content-secondary: var(--text-content-secondary-dark);
+        --text-header: var(--text-header-dark);
+        --border-color: var(--border-color-dark);
+        --control-bg: var(--control-bg-dark);
+        --control-hover-bg: var(--control-hover-bg-dark);
+        --control-text: var(--control-text-dark);
+        --form-input-bg: var(--form-input-bg-dark);
+        --form-input-border: var(--form-input-border-dark);
+        --form-input-focus-border: var(--form-input-focus-border-dark);
+        --form-input-focus-shadow: var(--form-input-focus-shadow-dark);
       }
 
+      /* Base styles */
       body {
-        font-family: var(--font-sans);
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
       }
 
-      /* Custom Form Styles */
+      /* Global form styles */
       .form-input, .form-select {
-        background-color: var(--bg-content);
-        border: 1px solid var(--border-color);
-        border-radius: 0.5rem;
-        padding: 0.75rem 1rem;
-        font-size: 1rem;
+        background-color: var(--form-input-bg);
+        border: 1px solid var(--form-input-border);
         color: var(--text-content-primary);
+        border-radius: 0.375rem;
+        padding: 0.625rem 0.75rem;
         transition: border-color 0.2s, box-shadow 0.2s;
       }
       .form-input:focus, .form-select:focus {
         outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+        border-color: var(--form-input-focus-border);
+        box-shadow: var(--form-input-focus-shadow);
       }
-      select.form-select {
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-        background-position: right 0.5rem center;
-        background-repeat: no-repeat;
-        background-size: 1.5em 1.5em;
-        padding-right: 2.5rem;
-      }
-      .dark select.form-select {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-      }
-
-      /* Text Gradient */
+      
+      /* Utilities */
       .text-gradient {
-          background-image: linear-gradient(to right, #EC4899, #8B5CF6);
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
+        background: linear-gradient(to right, var(--theme-primary), var(--theme-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-fill-color: transparent;
       }
 
-      /* Card Flip Animation */
+      .bg-gradient-theme {
+        background-image: linear-gradient(to right, var(--theme-primary), var(--theme-secondary));
+      }
+
+      /* Card preview styles */
       .perspective-1000 { perspective: 1000px; }
       .card-inner {
         position: relative;
@@ -178,44 +176,32 @@
         transition: transform 0.8s;
         transform-style: preserve-3d;
       }
-      .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-      
-      /* Custom Scrollbar */
-      .card-scrollbar::-webkit-scrollbar { width: 6px; }
+      .backface-hidden { backface-visibility: hidden; }
+      .text-shadow { text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+      .card-scrollbar::-webkit-scrollbar { width: 4px; }
       .card-scrollbar::-webkit-scrollbar-track { background: transparent; }
-      .card-scrollbar::-webkit-scrollbar-thumb {
-          background-color: rgba(var(--primary-color-rgb), 0.5);
-          border-radius: 20px;
-          border: 3px solid transparent;
-      }
-      .horizontal-scrollbar::-webkit-scrollbar { height: 6px; }
-      .horizontal-scrollbar::-webkit-scrollbar-thumb {
-          background-color: var(--border-color);
-          border-radius: 10px;
-      }
-      .dark .horizontal-scrollbar::-webkit-scrollbar-thumb {
-          background-color: #4b5563;
-      }
-
-      /* Animations */
+      .card-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(var(--primary-color-rgb), 0.5); border-radius: 20px; }
+      
+      /* Animation styles */
       @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
       }
       .fade-in-item {
-          animation: fadeIn 0.5s ease-out forwards;
+        animation: fadeIn 0.5s ease-out forwards;
       }
 
-      @keyframes toastIn {
-        from { transform: translate(-50%, -150%); opacity: 0; }
+      /* Toast animation */
+      @keyframes slideInDown {
+        from { transform: translate(-50%, -100%); opacity: 0; }
         to { transform: translate(-50%, 0); opacity: 1; }
       }
-      @keyframes toastOut {
+      @keyframes slideOutUp {
         from { transform: translate(-50%, 0); opacity: 1; }
-        to { transform: translate(-50%, -150%); opacity: 0; }
+        to { transform: translate(-50%, -100%); opacity: 0; }
       }
-      .toast-in { animation: toastIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
-      .toast-out { animation: toastOut 0.3s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards; }
+      .toast-in { animation: slideInDown 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+      .toast-out { animation: slideOutUp 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
 
     </style>
   </head>

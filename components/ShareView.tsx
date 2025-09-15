@@ -37,7 +37,7 @@ const ShareView: React.FC<ShareViewProps> = ({ cardData, theme }) => {
             <div className="mt-8 flex flex-col sm:flex-row gap-4 w-full max-w-xs mx-auto">
                 <button 
                     onClick={() => downloadVCard(cardData)}
-                    className="w-full flex items-center justify-center gap-2.5 py-3 px-4 rounded-lg bg-bg-card hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold text-text-content-primary border border-border-color transition-colors"
+                    className="w-full flex items-center justify-center gap-2.5 py-3 px-4 rounded-lg bg-bg-card hover:bg-control-bg font-semibold text-text-content-primary border border-border-color transition-colors"
                 >
                     <Download className="w-5 h-5" /> Download vCard
                 </button>

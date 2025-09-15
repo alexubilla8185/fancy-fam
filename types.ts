@@ -1,10 +1,10 @@
 export enum SocialNetwork {
-  LinkedIn = 'linkedin',
-  Twitter = 'twitter',
-  GitHub = 'github',
-  Instagram = 'instagram',
-  Facebook = 'facebook',
-  Other = 'other',
+  LinkedIn = 'LinkedIn',
+  Twitter = 'Twitter',
+  GitHub = 'GitHub',
+  Instagram = 'Instagram',
+  Facebook = 'Facebook',
+  Other = 'Other',
 }
 
 export interface SocialLink {
@@ -14,17 +14,16 @@ export interface SocialLink {
 }
 
 export interface FunFact {
-  id:string;
+  id: string;
   question: string;
   answer: string;
-  isGenerating?: boolean;
 }
 
 export interface ThemeColors {
   primary: string;
-  primaryRgb: string;
   secondary: string;
   accent: string;
+  primaryRgb: string;
 }
 
 export interface Theme {
@@ -33,21 +32,21 @@ export interface Theme {
   colors: ThemeColors;
 }
 
-export type ToastMessage = {
-  id: number;
-  message: string;
-  type: 'success' | 'error';
-} | null;
-
 export interface CardData {
   name: string;
   title: string;
   email: string;
   phone: string;
   website: string;
-  profilePicture: string; // This will now be a base64 string
+  profilePicture: string | null;
   socialLinks: SocialLink[];
   funFacts: FunFact[];
   themeId: string;
   customColors?: Omit<ThemeColors, 'primaryRgb'>;
 }
+
+export type ToastMessage = {
+  id: number;
+  message: string;
+  type: 'success' | 'error';
+} | null;

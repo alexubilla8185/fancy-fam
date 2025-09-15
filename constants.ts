@@ -1,77 +1,71 @@
-import { SocialNetwork, Theme, CardData } from './types';
+import { CardData, SocialNetwork, Theme } from './types';
 
 export const CUSTOM_THEME_ID = 'custom';
 
-export const SOCIAL_OPTIONS = [
-  { value: SocialNetwork.LinkedIn, label: 'LinkedIn' },
-  { value: SocialNetwork.Twitter, label: 'Twitter' },
-  { value: SocialNetwork.GitHub, label: 'GitHub' },
-  { value: SocialNetwork.Instagram, label: 'Instagram' },
-  { value: SocialNetwork.Facebook, label: 'Facebook' },
-  { value: SocialNetwork.Other, label: 'Other' },
-];
+export const INITIAL_CARD_DATA: CardData = {
+  name: 'Alex Doe',
+  title: 'Software Engineer & Designer',
+  email: 'alex.doe@example.com',
+  phone: '(123) 456-7890',
+  website: 'alexdoe.dev',
+  profilePicture: null,
+  socialLinks: [
+    { id: '1', type: SocialNetwork.LinkedIn, url: 'https://www.linkedin.com/in/alexdoe' },
+    { id: '2', type: SocialNetwork.Instagram, url: 'https://www.instagram.com/alexdoe' },
+  ],
+  funFacts: [
+    { id: '1', question: 'Coffee or Tea?', answer: 'Both! Espresso in the morning, Green Tea in the afternoon.' },
+    { id: '2', question: 'Favorite coding language?', answer: 'TypeScript for its safety and scalability.' },
+  ],
+  themeId: 'neon-dream',
+};
 
-export const FUN_FACT_QUESTIONS = [
-  'Dream Dinner Guest?',
-  'Vacay Goals?',
-  'Secret Talent?',
-  'Top Flick?',
-  'Karaoke Jam?',
-  'Wisdom Drop?',
-  'Shock & Awe?',
-  'Bacon?',
-  'Time Warp?',
-  'Weekend Vibes?',
-  'Foodie Fun?',
-  'Passions?',
-  'Heartfelt Cause?',
-  'Coke or Pepsi?',
-  'Android or iPhone?',
+export const SOCIAL_OPTIONS = Object.values(SocialNetwork).map(value => ({
+  value,
+  label: value,
+}));
+
+export const FUN_FACT_QUESTIONS: string[] = [
+  "What's your secret talent?",
+  "What's your favorite productivity hack?",
+  "Coffee or Tea?",
+  "What's a book that changed your perspective?",
+  "What's your go-to karaoke song?",
+  "Favorite coding language?",
+  "What's the most interesting project you've worked on?",
+  "If you weren't in your current role, what would you be doing?",
+  "What's a skill you're currently learning?",
 ];
 
 export const THEMES: Theme[] = [
   {
-    id: 'hyper-pink',
-    name: 'Hyper Pink',
-    colors: { primary: '#F43F5E', primaryRgb: '244, 63, 94', secondary: '#38BDF8', accent: '#FACC15' },
+    id: 'neon-dream',
+    name: 'Neon Dream',
+    colors: { primary: '#EC4899', secondary: '#8B5CF6', accent: '#FDE047', primaryRgb: '236, 72, 153' },
   },
   {
-    id: 'oceanic',
-    name: 'Oceanic',
-    colors: { primary: '#38BDF8', primaryRgb: '56, 189, 248', secondary: '#34D399', accent: '#F97316' },
-  },
-    {
-    id: 'synthwave',
-    name: 'Synthwave',
-    colors: { primary: '#EC4899', primaryRgb: '236, 72, 153', secondary: '#8B5CF6', accent: '#FDE047' },
+    id: 'oceanic-calm',
+    name: 'Oceanic Calm',
+    colors: { primary: '#0EA5E9', secondary: '#14B8A6', accent: '#A3E635', primaryRgb: '14, 165, 233' },
   },
   {
-    id: 'gilded-gold',
-    name: 'Gilded Gold',
-    colors: { primary: '#FBBF24', primaryRgb: '251, 191, 36', secondary: '#9CA3AF', accent: '#F9FAFB' },
+    id: 'sunset-glow',
+    name: 'Sunset Glow',
+    colors: { primary: '#F97316', secondary: '#EF4444', accent: '#FACC15', primaryRgb: '249, 115, 22' },
   },
   {
-    id: 'noir',
-    name: 'Noir',
-    colors: { primary: '#F9FAFB', primaryRgb: '249, 250, 251', secondary: '#EF4444', accent: '#9CA3AF' },
+    id: 'forest-hues',
+    name: 'Forest Hues',
+    colors: { primary: '#16A34A', secondary: '#65A30D', accent: '#FBBF24', primaryRgb: '22, 163, 74' },
+  },
+  {
+    id: 'lavender-bliss',
+    name: 'Lavender Bliss',
+    colors: { primary: '#9333EA', secondary: '#C084FC', accent: '#F0ABFC', primaryRgb: '147, 51, 234' },
+  },
+  {
+    id: 'monochrome-sleek',
+    name: 'Monochrome Sleek',
+    colors: { primary: '#6B7280', secondary: '#D1D5DB', accent: '#F9FAFB', primaryRgb: '107, 114, 128' },
   },
 ];
-
-export const INITIAL_CARD_DATA: CardData = {
-  name: 'Alexa Johnson',
-  title: 'Full Stack Developer',
-  email: 'alexa@example.com',
-  phone: '(555) 123-4567',
-  website: 'alexajohnson.dev',
-  profilePicture: `https://i.pravatar.cc/400?u=alexajohnson`,
-  socialLinks: [
-    { id: '1', type: SocialNetwork.LinkedIn, url: 'https://linkedin.com/in/alexajohnson' },
-    { id: '2', type: SocialNetwork.GitHub, url: 'https://github.com/alexajohnson' },
-    { id: '3', type: SocialNetwork.Twitter, url: 'https://twitter.com/alexajohnson' },
-  ],
-  funFacts: [
-    { id: '1', question: 'Secret Talent?', answer: "I can solve a Rubik's cube in under a minute!" },
-    { id: '2', question: 'Time Warp?', answer: 'Teleportation - no more commuting!' },
-  ],
-  themeId: 'synthwave',
-};

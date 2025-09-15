@@ -44,7 +44,7 @@ const FunFactsSection: React.FC<FunFactsSectionProps> = ({ cardData, setCardData
     };
 
     const RemoveButton: React.FC<{onClick: () => void}> = ({onClick}) => (
-        <button type="button" onClick={onClick} className="text-text-content-secondary hover:text-red-500 transition-colors p-1" aria-label="Remove fun fact">
+        <button type="button" onClick={onClick} className="text-text-content-secondary hover:text-red-500 transition-colors p-2" aria-label="Remove fun fact">
             <Trash2 className="h-5 w-5"/>
         </button>
     );
@@ -62,16 +62,16 @@ const FunFactsSection: React.FC<FunFactsSectionProps> = ({ cardData, setCardData
             <div className="p-4 sm:p-6 bg-bg-card rounded-lg border border-border-color space-y-4">
                 {cardData.funFacts.length > 0 ? (
                     cardData.funFacts.map((fact) => (
-                        <div key={fact.id} className="bg-bg-content rounded-lg border border-border-color p-4 space-y-3 fade-in-item">
-                             <select value={fact.question} onChange={e => handleFunFactChange(fact.id, 'question', e.target.value)} className="form-select p-2.5 w-full">
-                                <option value="">Select a question...</option>
-                                {FUN_FACT_QUESTIONS.includes(fact.question) || <option value={fact.question}>{fact.question}</option> }
-                                {FUN_FACT_QUESTIONS.map(q => <option key={q} value={q}>{q}</option>)}
-                            </select>
-                            <input type="text" placeholder="Your answer..." value={fact.answer} onChange={e => handleFunFactChange(fact.id, 'answer', e.target.value)} className="form-input p-2.5 w-full" />
-                            <div className="flex justify-end pt-1">
-                                <RemoveButton onClick={() => requestRemoveFunFact(fact.id)} />
+                        <div key={fact.id} className="flex items-center gap-4 bg-bg-content rounded-lg border border-border-color p-4 fade-in-item">
+                            <div className="flex-grow space-y-3">
+                                <select value={fact.question} onChange={e => handleFunFactChange(fact.id, 'question', e.target.value)} className="form-select p-2.5 w-full">
+                                    <option value="">Select a question...</option>
+                                    {FUN_FACT_QUESTIONS.includes(fact.question) || <option value={fact.question}>{fact.question}</option> }
+                                    {FUN_FACT_QUESTIONS.map(q => <option key={q} value={q}>{q}</option>)}
+                                </select>
+                                <input type="text" placeholder="Your answer..." value={fact.answer} onChange={e => handleFunFactChange(fact.id, 'answer', e.target.value)} className="form-input p-2.5 w-full" />
                             </div>
+                            <RemoveButton onClick={() => requestRemoveFunFact(fact.id)} />
                         </div>
                     ))
                 ) : (
