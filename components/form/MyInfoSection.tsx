@@ -8,7 +8,7 @@ interface MyInfoSectionProps {
     setToast: (toast: ToastMessage) => void;
 }
 
-const resizeAndEncodeImage = (file: File, maxSize: number = 400): Promise<string> => {
+const resizeAndEncodeImage = (file: File, maxSize: number = 320): Promise<string> => {
     return new Promise((resolve, reject) => {
         const objectUrl = URL.createObjectURL(file);
         const img = new Image();
@@ -41,8 +41,8 @@ const resizeAndEncodeImage = (file: File, maxSize: number = 400): Promise<string
             ctx.drawImage(img, 0, 0, width, height);
             URL.revokeObjectURL(objectUrl);
             
-            // Use JPEG for better compression of photos, with a quality of 75%
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+            // Use WebP for superior compression, with a quality of 75%
+            const dataUrl = canvas.toDataURL('image/webp', 0.75);
             // Strip the data URL prefix to save space
             const base64String = dataUrl.split(',')[1];
             resolve(base64String);
@@ -188,7 +188,7 @@ const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData, se
                         <label className="block text-sm font-medium mb-1 text-text-content-secondary">Profile Picture</label>
                         <div className="flex items-center gap-4">
                             <img 
-                                src={cardData.profilePicture ? `data:image/jpeg;base64,${cardData.profilePicture}` : `https://i.pravatar.cc/400?u=${cardData.name}`} 
+                                src={cardData.profilePicture ? `data:image/webp;base64,${cardData.profilePicture}` : `https://i.pravatar.cc/400?u=${cardData.name}`} 
                                 alt="Profile Preview" 
                                 className="w-16 h-16 rounded-full object-cover bg-gray-200"
                                 onError={(e) => { e.currentTarget.src = `https://i.pravatar.cc/400?u=fallback`; }}
