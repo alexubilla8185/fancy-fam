@@ -7,12 +7,46 @@ interface MyInfoSectionProps {
     setCardData: React.Dispatch<React.SetStateAction<CardData>>;
 }
 
-const fileToBase64 = (file: File): Promise<string> => {
+const resizeAndEncodeImage = (file: File, maxSize: number = 512): Promise<string> => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = error => reject(error);
+        reader.onload = (event) => {
+            if (!event.target?.result) {
+                return reject(new Error("Failed to read file."));
+            }
+            const img = new Image();
+            img.src = event.target.result as string;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let { width, height } = img;
+
+                if (width > height) {
+                    if (width > maxSize) {
+                        height = Math.round(height * (maxSize / width));
+                        width = maxSize;
+                    }
+                } else {
+                    if (height > maxSize) {
+                        width = Math.round(width * (maxSize / height));
+                        height = maxSize;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    return reject(new Error('Could not get canvas context'));
+                }
+                ctx.drawImage(img, 0, 0, width, height);
+                // Use JPEG for better compression of photos, with a quality of 80%
+                resolve(canvas.toDataURL('image/jpeg', 0.8));
+            };
+            img.onerror = (error) => reject(error);
+        };
+        reader.onerror = (error) => reject(error);
     });
 };
 
@@ -73,8 +107,13 @@ const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData }) 
     const handleProfilePictureChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
-            const base64 = await fileToBase64(file);
-            setCardData(prev => ({ ...prev, profilePicture: base64 }));
+            try {
+                const resizedImage = await resizeAndEncodeImage(file);
+                setCardData(prev => ({ ...prev, profilePicture: resizedImage }));
+            } catch (error) {
+                console.error("Failed to process image:", error);
+                // TODO: Show a toast message to the user about the failure.
+            }
         }
     };
 
