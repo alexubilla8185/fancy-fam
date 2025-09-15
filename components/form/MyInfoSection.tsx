@@ -1,56 +1,61 @@
 import React, { useState } from 'react';
-import { CardData } from '../../types';
+import { CardData, ToastMessage } from '../../types';
 import { ImageUp } from 'lucide-react';
 
 interface MyInfoSectionProps {
     cardData: CardData;
     setCardData: React.Dispatch<React.SetStateAction<CardData>>;
+    setToast: (toast: ToastMessage) => void;
 }
 
-const resizeAndEncodeImage = (file: File, maxSize: number = 512): Promise<string> => {
+const resizeAndEncodeImage = (file: File, maxSize: number = 400): Promise<string> => {
     return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => {
-            if (!event.target?.result) {
-                return reject(new Error("Failed to read file."));
+        const objectUrl = URL.createObjectURL(file);
+        const img = new Image();
+        img.src = objectUrl;
+
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let { width, height } = img;
+
+            if (width > height) {
+                if (width > maxSize) {
+                    height = Math.round(height * (maxSize / width));
+                    width = maxSize;
+                }
+            } else {
+                if (height > maxSize) {
+                    width = Math.round(width * (maxSize / height));
+                    height = maxSize;
+                }
             }
-            const img = new Image();
-            img.src = event.target.result as string;
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                let { width, height } = img;
 
-                if (width > height) {
-                    if (width > maxSize) {
-                        height = Math.round(height * (maxSize / width));
-                        width = maxSize;
-                    }
-                } else {
-                    if (height > maxSize) {
-                        width = Math.round(width * (maxSize / height));
-                        height = maxSize;
-                    }
-                }
+            canvas.width = width;
+            canvas.height = height;
 
-                canvas.width = width;
-                canvas.height = height;
-
-                const ctx = canvas.getContext('2d');
-                if (!ctx) {
-                    return reject(new Error('Could not get canvas context'));
-                }
-                ctx.drawImage(img, 0, 0, width, height);
-                // Use JPEG for better compression of photos, with a quality of 80%
-                resolve(canvas.toDataURL('image/jpeg', 0.8));
-            };
-            img.onerror = (error) => reject(error);
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                URL.revokeObjectURL(objectUrl);
+                return reject(new Error('Could not get canvas context'));
+            }
+            ctx.drawImage(img, 0, 0, width, height);
+            URL.revokeObjectURL(objectUrl);
+            
+            // Use JPEG for better compression of photos, with a quality of 75%
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+            // Strip the data URL prefix to save space
+            const base64String = dataUrl.split(',')[1];
+            resolve(base64String);
         };
-        reader.onerror = (error) => reject(error);
+
+        img.onerror = (error) => {
+            URL.revokeObjectURL(objectUrl);
+            reject(error);
+        };
     });
 };
 
-const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData }) => {
+const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData, setToast }) => {
     const [websiteError, setWebsiteError] = useState<string>('');
     const [emailError, setEmailError] = useState<string>('');
 
@@ -107,12 +112,19 @@ const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData }) 
     const handleProfilePictureChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
+            const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+            if (file.size > MAX_FILE_SIZE) {
+                setToast({ id: Date.now(), message: 'Image size cannot exceed 10MB.', type: 'error' });
+                return;
+            }
+
             try {
                 const resizedImage = await resizeAndEncodeImage(file);
                 setCardData(prev => ({ ...prev, profilePicture: resizedImage }));
             } catch (error) {
                 console.error("Failed to process image:", error);
-                // TODO: Show a toast message to the user about the failure.
+                setToast({ id: Date.now(), message: 'Failed to process image.', type: 'error' });
             }
         }
     };
@@ -176,7 +188,7 @@ const MyInfoSection: React.FC<MyInfoSectionProps> = ({ cardData, setCardData }) 
                         <label className="block text-sm font-medium mb-1 text-text-content-secondary">Profile Picture</label>
                         <div className="flex items-center gap-4">
                             <img 
-                                src={cardData.profilePicture || `https://i.pravatar.cc/400?u=${cardData.name}`} 
+                                src={cardData.profilePicture ? `data:image/jpeg;base64,${cardData.profilePicture}` : `https://i.pravatar.cc/400?u=${cardData.name}`} 
                                 alt="Profile Preview" 
                                 className="w-16 h-16 rounded-full object-cover bg-gray-200"
                                 onError={(e) => { e.currentTarget.src = `https://i.pravatar.cc/400?u=fallback`; }}

@@ -6,6 +6,7 @@ import ShareView from './components/ShareView';
 import Toast from './components/Toast';
 import { CardData, Theme, ToastMessage } from './types';
 import { INITIAL_CARD_DATA, THEMES, CUSTOM_THEME_ID } from './constants';
+import { decodeCardDataWithFallback } from './utils/compression';
 
 const hexToRgb = (hex: string): string => {
   if (!hex) return '0,0,0';
@@ -27,7 +28,6 @@ const getTheme = (data: CardData): Theme => {
   return THEMES.find(t => t.id === data.themeId) || THEMES[0];
 };
 
-
 const App: React.FC = () => {
   const [cardData, setCardData] = useState<CardData>(INITIAL_CARD_DATA);
   const [toast, setToast] = useState<ToastMessage>(null);
@@ -38,15 +38,13 @@ const App: React.FC = () => {
     const handleHashChange = () => {
       const hash = window.location.hash.substring(1);
       if (hash) {
-        try {
-          // Unicode-safe base64 decoding
-          const decodedData = decodeURIComponent(atob(hash));
-          const parsedData = JSON.parse(decodedData) as CardData;
+        const parsedData = decodeCardDataWithFallback(hash);
+        if (parsedData) {
           setSharedCardData(parsedData);
           setMode('share');
-        } catch (error) {
-          console.error("Failed to parse card data from URL hash", error);
-          setMode('create');
+        } else {
+          console.error("Failed to parse card data from URL hash.");
+          setMode('create'); // Fallback to create mode if parsing fails
         }
       } else {
         setMode('create');

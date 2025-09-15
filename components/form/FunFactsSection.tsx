@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
-import { CardData, FunFact } from '../../types';
+import { CardData, FunFact, ToastMessage } from '../../types';
 import { FUN_FACT_QUESTIONS } from '../../constants';
-import { Plus, Trash2, MessageSquareQuote } from 'lucide-react';
+import { Plus, Trash2, MessageSquareQuote, Sparkles } from 'lucide-react';
 import ConfirmationDialog from '../ConfirmationDialog';
+import { generateFunFactAnswer } from '../../lib/gemini';
+import Spinner from '../Spinner';
 
 interface FunFactsSectionProps {
     cardData: CardData;
     setCardData: React.Dispatch<React.SetStateAction<CardData>>;
+    setToast: (toast: ToastMessage) => void;
 }
 
-const FunFactsSection: React.FC<FunFactsSectionProps> = ({ cardData, setCardData }) => {
+const FunFactsSection: React.FC<FunFactsSectionProps> = ({ cardData, setCardData, setToast }) => {
     const [showConfirm, setShowConfirm] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+    const [generatingId, setGeneratingId] = useState<string | null>(null);
 
     const handleFunFactChange = (id: string, field: keyof Omit<FunFact, 'id'>, value: string) => {
         setCardData(prev => ({ ...prev, funFacts: prev.funFacts.map(fact => fact.id === id ? { ...fact, [field]: value } : fact) }));
@@ -43,6 +47,26 @@ const FunFactsSection: React.FC<FunFactsSectionProps> = ({ cardData, setCardData
         setItemToDelete(null);
     };
 
+    const handleGenerateAnswer = async (factId: string, question: string) => {
+        if (generatingId) return; // Prevent multiple requests
+
+        if (!question) {
+            setToast({ id: Date.now(), message: 'Please select a question first.', type: 'error' });
+            return;
+        }
+
+        setGeneratingId(factId);
+        try {
+            const answer = await generateFunFactAnswer(cardData.name, cardData.title, question);
+            handleFunFactChange(factId, 'answer', answer);
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+            setToast({ id: Date.now(), message: errorMessage, type: 'error' });
+        } finally {
+            setGeneratingId(null);
+        }
+    };
+
     const RemoveButton: React.FC<{onClick: () => void}> = ({onClick}) => (
         <button type="button" onClick={onClick} className="text-text-content-secondary hover:text-red-500 transition-colors p-2" aria-label="Remove fun fact">
             <Trash2 className="h-5 w-5"/>
@@ -62,14 +86,36 @@ const FunFactsSection: React.FC<FunFactsSectionProps> = ({ cardData, setCardData
             <div className="p-4 sm:p-6 bg-bg-card rounded-lg border border-border-color space-y-4">
                 {cardData.funFacts.length > 0 ? (
                     cardData.funFacts.map((fact) => (
-                        <div key={fact.id} className="flex items-center gap-4 bg-bg-content rounded-lg border border-border-color p-4 fade-in-item">
+                        <div key={fact.id} className="flex items-start gap-4 bg-bg-content rounded-lg border border-border-color p-4 fade-in-item">
                             <div className="flex-grow space-y-3">
                                 <select value={fact.question} onChange={e => handleFunFactChange(fact.id, 'question', e.target.value)} className="form-select p-2.5 w-full">
                                     <option value="">Select a question...</option>
                                     {FUN_FACT_QUESTIONS.includes(fact.question) || <option value={fact.question}>{fact.question}</option> }
                                     {FUN_FACT_QUESTIONS.map(q => <option key={q} value={q}>{q}</option>)}
                                 </select>
-                                <input type="text" placeholder="Your answer..." value={fact.answer} onChange={e => handleFunFactChange(fact.id, 'answer', e.target.value)} className="form-input p-2.5 w-full" />
+                                <div className="relative flex items-center">
+                                    <input 
+                                        type="text" 
+                                        placeholder="Your answer..." 
+                                        value={fact.answer} 
+                                        onChange={e => handleFunFactChange(fact.id, 'answer', e.target.value)} 
+                                        className="form-input p-2.5 w-full pr-10"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => handleGenerateAnswer(fact.id, fact.question)}
+                                        disabled={!!generatingId}
+                                        className="absolute right-1 top-1/2 -translate-y-1/2 p-1.5 text-text-content-secondary rounded-full hover:bg-control-hover-bg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                        aria-label="Auto-suggest answer"
+                                        title="Auto-suggest answer"
+                                    >
+                                        {generatingId === fact.id ? (
+                                            <Spinner className="w-5 h-5 text-theme-primary" />
+                                        ) : (
+                                            <Sparkles className="w-5 h-5" />
+                                        )}
+                                    </button>
+                                </div>
                             </div>
                             <RemoveButton onClick={() => requestRemoveFunFact(fact.id)} />
                         </div>

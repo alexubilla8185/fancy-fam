@@ -6,6 +6,7 @@ import FunFactsSection from './form/FunFactsSection';
 import ThemeSection from './form/ThemeSection';
 import CardPreview from './CardPreview';
 import { Share2, ArrowUp } from 'lucide-react';
+import { encodeCardData } from '../utils/compression';
 
 interface CreateCardFormProps {
   cardData: CardData;
@@ -41,9 +42,8 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
   const handleShare = async () => {
     let pageUrl = '';
     try {
-      // Unicode-safe base64 encoding
-      const dataString = JSON.stringify(cardData);
-      const encodedData = btoa(encodeURIComponent(dataString));
+      // Use new compression and encoding utility
+      const encodedData = encodeCardData(cardData);
       pageUrl = `${window.location.origin}${window.location.pathname}#${encodedData}`;
     } catch (error) {
       console.error("Failed to encode card data for sharing", error);
@@ -117,9 +117,9 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
         {/* Form Section - Appears second on mobile, left on desktop */}
         <div className="lg:order-1 lg:col-span-5">
           <div className="space-y-8 lg:space-y-12">
-            <MyInfoSection cardData={cardData} setCardData={setCardData} />
+            <MyInfoSection cardData={cardData} setCardData={setCardData} setToast={setToast} />
             <SocialLinksSection cardData={cardData} setCardData={setCardData} />
-            <FunFactsSection cardData={cardData} setCardData={setCardData} />
+            <FunFactsSection cardData={cardData} setCardData={setCardData} setToast={setToast} />
           </div>
         </div>
       </form>

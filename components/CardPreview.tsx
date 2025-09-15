@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CardData, Theme } from '../types';
 import { SocialIcon } from './icons/SocialIcons';
 import { QRCodeSVG } from 'qrcode.react';
+import { encodeCardData } from '../utils/compression';
 
 interface CardPreviewProps {
   cardData: CardData;
@@ -15,9 +16,8 @@ const CardPreview: React.FC<CardPreviewProps> = ({ cardData, theme, isFlipped })
 
   useEffect(() => {
     try {
-      // Unicode-safe base64 encoding
-      const dataString = JSON.stringify(cardData);
-      const encodedData = btoa(encodeURIComponent(dataString));
+      // Use new compression and encoding utility for a smaller URL
+      const encodedData = encodeCardData(cardData);
       const url = `${window.location.origin}${window.location.pathname}#${encodedData}`;
       setShareUrl(url);
     } catch (e) {
@@ -63,7 +63,7 @@ const CardPreview: React.FC<CardPreviewProps> = ({ cardData, theme, isFlipped })
         <div className="relative z-10 flex flex-col justify-between h-full p-4 sm:p-5 text-white bg-gradient-to-t from-black/80 via-black/40 to-transparent">
           <div className="flex-1 flex flex-col justify-center items-center text-center">
             <img
-              src={profilePicture || `https://i.pravatar.cc/400?u=${encodeURIComponent(name)}`}
+              src={profilePicture ? `data:image/jpeg;base64,${profilePicture}` : `https://i.pravatar.cc/400?u=${encodeURIComponent(name)}`}
               alt={name}
               className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-white/50 shadow-lg mb-3"
               onError={(e) => { e.currentTarget.src = `https://i.pravatar.cc/400?u=fallback`; }}
