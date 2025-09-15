@@ -4,6 +4,26 @@ import { SocialIcon } from './icons/SocialIcons';
 import { QRCodeSVG } from 'qrcode.react';
 import { encodeCardData } from '../utils/compression';
 
+// Debounce hook to prevent expensive operations from running on every render.
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    // Set debouncedValue to value (passed in) after the specified delay
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    // Return a cleanup function that will be called every time useEffect is re-called.
+    // This prevents debouncedValue from changing if value is changed within the delay period.
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]); // Only re-call effect if value or delay changes
+
+  return debouncedValue;
+}
+
 interface CardPreviewProps {
   cardData: CardData;
   theme: Theme;
@@ -13,18 +33,21 @@ interface CardPreviewProps {
 const CardPreview: React.FC<CardPreviewProps> = ({ cardData, theme, isFlipped }) => {
   const { name, title, email, phone, website, profilePicture, socialLinks, funFacts } = cardData;
   const [shareUrl, setShareUrl] = useState('');
+  
+  // Debounce cardData to prevent the expensive encodeCardData function from running on every keystroke.
+  const debouncedCardData = useDebounce(cardData, 500);
 
   useEffect(() => {
     try {
-      // Use new compression and encoding utility for a smaller URL
-      const encodedData = encodeCardData(cardData);
+      // Use the debounced data to generate the share URL for the QR code.
+      const encodedData = encodeCardData(debouncedCardData);
       const url = `${window.location.origin}${window.location.pathname}#${encodedData}`;
       setShareUrl(url);
     } catch (e) {
       console.error('Failed to generate share URL for QR code', e);
       setShareUrl('');
     }
-  }, [cardData]);
+  }, [debouncedCardData]); // Effect now depends on the debounced data
 
   const cardStyle: React.CSSProperties = {
     '--primary-color': theme.colors.primary,
