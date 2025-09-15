@@ -41,10 +41,9 @@ const CreateCardForm: React.FC<CreateCardFormProps> = ({ cardData, setCardData, 
   const handleShare = async () => {
     let pageUrl = '';
     try {
+      // Unicode-safe base64 encoding
       const dataString = JSON.stringify(cardData);
-      const uint8Array = new TextEncoder().encode(dataString);
-      const binaryString = Array.from(uint8Array, byte => String.fromCharCode(byte)).join('');
-      const encodedData = btoa(binaryString);
+      const encodedData = btoa(encodeURIComponent(dataString));
       pageUrl = `${window.location.origin}${window.location.pathname}#${encodedData}`;
     } catch (error) {
       console.error("Failed to encode card data for sharing", error);

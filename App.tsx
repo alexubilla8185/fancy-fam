@@ -39,12 +39,8 @@ const App: React.FC = () => {
       const hash = window.location.hash.substring(1);
       if (hash) {
         try {
-          const binaryString = atob(hash);
-          const bytes = new Uint8Array(binaryString.length);
-          for (let i = 0; i < binaryString.length; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-          }
-          const decodedData = new TextDecoder().decode(bytes);
+          // Unicode-safe base64 decoding
+          const decodedData = decodeURIComponent(atob(hash));
           const parsedData = JSON.parse(decodedData) as CardData;
           setSharedCardData(parsedData);
           setMode('share');

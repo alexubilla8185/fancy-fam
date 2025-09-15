@@ -15,10 +15,9 @@ const CardPreview: React.FC<CardPreviewProps> = ({ cardData, theme, isFlipped })
 
   useEffect(() => {
     try {
+      // Unicode-safe base64 encoding
       const dataString = JSON.stringify(cardData);
-      const uint8Array = new TextEncoder().encode(dataString);
-      const binaryString = Array.from(uint8Array, byte => String.fromCharCode(byte)).join('');
-      const encodedData = btoa(binaryString);
+      const encodedData = btoa(encodeURIComponent(dataString));
       const url = `${window.location.origin}${window.location.pathname}#${encodedData}`;
       setShareUrl(url);
     } catch (e) {
