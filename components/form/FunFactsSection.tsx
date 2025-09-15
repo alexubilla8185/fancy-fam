@@ -3,7 +3,6 @@ import { CardData, FunFact, ToastMessage } from '../../types';
 import { FUN_FACT_QUESTIONS } from '../../constants';
 import { Plus, Trash2, MessageSquareQuote, Sparkles } from 'lucide-react';
 import ConfirmationDialog from '../ConfirmationDialog';
-import { generateFunFactAnswer } from '../../lib/gemini';
 import Spinner from '../Spinner';
 
 interface FunFactsSectionProps {
@@ -48,7 +47,7 @@ const FunFactsSection: React.FC<FunFactsSectionProps> = ({ cardData, setCardData
     };
 
     const handleGenerateAnswer = async (factId: string, question: string) => {
-        if (generatingId) return; // Prevent multiple requests
+        if (generatingId) return;
 
         if (!question) {
             setToast({ id: Date.now(), message: 'Please select a question first.', type: 'error' });
@@ -57,8 +56,23 @@ const FunFactsSection: React.FC<FunFactsSectionProps> = ({ cardData, setCardData
 
         setGeneratingId(factId);
         try {
-            const answer = await generateFunFactAnswer(cardData.name, cardData.title, question);
-            handleFunFactChange(factId, 'answer', answer);
+            const response = await fetch('/.netlify/functions/generate-fact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: cardData.name,
+                    title: cardData.title,
+                    question: question,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to generate suggestion.');
+            }
+
+            handleFunFactChange(factId, 'answer', data.answer);
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
             setToast({ id: Date.now(), message: errorMessage, type: 'error' });
